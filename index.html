@@ -87,8 +87,9 @@
       tube.classList.add("shake");
       setTimeout(()=>tube.classList.remove("shake"),300);
 
-      if(tube.getAttribute("src")==="intro.jpg"){
-        tube.setAttribute("src","toothpaste.png");
+      if (tube.src.includes("intro.jpg")) {   // ✅ Исправленная проверка
+        tube.src = "toothpaste.png";
+        return; // первый клик только меняет картинку
       }
 
       if(counterEl.classList.contains("hidden")) counterEl.classList.remove("hidden");
