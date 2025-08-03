@@ -35,7 +35,6 @@
     }
     #score-container { top: 16px; right: 16px; }
     #record-container { top: 16px; left: 16px; }
-    /* Ачивки под полем рекорда */
     #achievements {
       position: absolute;
       top: 100%;
@@ -73,7 +72,6 @@
       opacity: 1;
       transform: scale(1);
     }
-    /* Таймер для секретного уровня */
     #timer {
       margin-top: 10px;
       font-size: 48px;
@@ -244,10 +242,10 @@
     function randomMessage() {
       let m;
       do {
-        m = Math.random()<0.3
+        m = Math.random() < 0.3
           ? emojis[Math.floor(Math.random()*emojis.length)]
           : texts[Math.floor(Math.random()*texts.length)];
-      } while(m===lastMsg);
+      } while(m === lastMsg);
       lastMsg = m;
       return m;
     }
@@ -297,9 +295,7 @@
       timerInterval = setInterval(()=>{
         remaining -= 0.1;
         timerEl.textContent = remaining.toFixed(1);
-        if(remaining <= 0) {
-          clearInterval(timerInterval);
-        }
+        if(remaining <= 0) clearInterval(timerInterval);
       }, 100);
     }
 
@@ -343,7 +339,6 @@
 
       clickCount++;
 
-      // секретный уровень один раз, когда достигли 5 раундов
       if(!secretActive && !secretUsed && roundCount>=5 && Math.random()<secretChance){
         startSecret();
         return;
@@ -372,6 +367,8 @@
         protectedClicks--;
       } else if(clickCount>=3 && Math.random()<explosionChance){
         explosionCount++;
+        msg.style.display = "none";
+        timerEl.style.display = "none";
         img.style.display="none";
         vid.style.display="block";
         vid.currentTime=0; vid.play();
@@ -423,6 +420,7 @@
       scoreBox.textContent = "Проказы с пастой: 0";
       scoreBox.style.display = "block";
       recBox.style.display = "block";
+      msg.style.display = "inline-block";
     });
   </script>
 </body>
