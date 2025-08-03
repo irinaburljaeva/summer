@@ -1,279 +1,233 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Игра с зубной пастой</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Проказы с пастой</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
       background: white;
-      text-align: center;
-      overflow-x: hidden;
-    }
-    .container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
+      font-family: Arial, sans-serif;
       min-height: 100vh;
-      position: relative;
+      margin: 0;
+      overflow-x: hidden;
     }
-    .media-wrapper {
-      position: relative;
-      width: 220px;
-      height: auto;
-    }
-    .media-wrapper img,
-    .media-wrapper video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 220px;
-      user-select: none;
-      outline: none;
-    }
-    .media-wrapper video {
+    #counter-container {
       display: none;
-    }
-    .shake {
-      animation: shake 0.4s;
-    }
-    @keyframes shake {
-      0% { transform: translate(0px, 0px) rotate(0deg); }
-      20% { transform: translate(-3px, 0px) rotate(-5deg); }
-      40% { transform: translate(3px, 0px) rotate(5deg); }
-      60% { transform: translate(-3px, 0px) rotate(-5deg); }
-      80% { transform: translate(3px, 0px) rotate(5deg); }
-      100% { transform: translate(0px, 0px) rotate(0deg); }
-    }
-    .message {
-      margin-top: 250px;
-      font-size: 18px;
-      min-height: 40px;
-    }
-    .counter-container {
-      display: none;
-      position: absolute;
+      position: fixed;
       top: 20px;
       right: 20px;
       background: #CF2C02;
       color: white;
+      font-weight: bold;
       padding: 10px 20px;
-      border-radius: 10px;
-      font-weight: bold;
+      border-radius: 6px;
+      font-size: 18px;
+      z-index: 20;
     }
-    .record-container {
+    #record-container {
       display: none;
-      margin-top: 10px;
-      font-size: 16px;
-      color: #CF2C02;
+      font-size: 20px;
       font-weight: bold;
+      margin-top: 10px;
+      color: #CF2C02;
     }
-    .explosion-overlay {
+    #content {
+      margin-top: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    #content img, #content video {
+      width: 200px;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    #random-text {
+      margin-top: 15px;
+      font-size: 18px;
+      max-width: 300px;
+    }
+    #pink-screen {
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #ffd6e8;
+      width: 100%;
+      height: 100%;
+      background-color: #f7d9d9;
+      z-index: 15;
       opacity: 0;
-      pointer-events: none;
-      transition: opacity 1s ease;
-      z-index: 10;
+      transition: opacity 1s ease-in-out;
     }
-    .explosion-overlay.show {
-      opacity: 1;
-    }
-    .explosion-text {
+    #final-text {
+      display: none;
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 22px;
-      font-weight: bold;
-      color: #333;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
       z-index: 20;
-      display: none;
+      text-align: center;
+      max-width: 300px;
     }
-    .reset-btn {
-      display: none;
-      margin-top: 20px;
-      padding: 10px 20px;
+    #final-text button {
+      margin-top: 10px;
       background: #CF2C02;
       color: white;
       border: none;
-      border-radius: 8px;
+      padding: 10px 20px;
+      border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
-      z-index: 21;
-    }
-    .popup {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff3cd;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 16px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-      opacity: 0;
-      animation: fadeUp 2s forwards;
-    }
-    @keyframes fadeUp {
-      0% { transform: translate(-50%, 20px); opacity: 0; }
-      20% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { transform: translate(-50%, -20px); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="media-wrapper">
-      <img id="toothpaste" src="intro.jpg" alt="Зубная паста" tabindex="-1" />
-      <video id="explosionVideo" src="toothpaste.mp4"></video>
-    </div>
-    <div class="message" id="message"></div>
-    <div class="counter-container" id="counter">Проказы с пастой: 0</div>
-    <div class="record-container" id="record">Рекорд: 0</div>
-    <button class="reset-btn" id="resetBtn">Стереть пасту</button>
+  <div id="counter-container">Проказы с пастой: 0</div>
+  <div id="content">
+    <img id="tube" src="intro.jpg" alt="Тюбик пасты">
+    <div id="random-text"></div>
+    <div id="record-container"></div>
   </div>
 
-  <div class="explosion-overlay" id="explosion"></div>
-  <div class="explosion-text" id="explosionText">Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках, и в итоге вы измазались сами 🙈</div>
+  <div id="pink-screen"></div>
+  <div id="final-text">
+    <p>Ой! Кто-то переусердствовал.<br>Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈</p>
+    <button onclick="resetGame()">Стереть пасту</button>
+  </div>
 
   <script>
-    const toothpasteImg = document.getElementById("toothpaste");
-    const explosionVideo = document.getElementById("explosionVideo");
-    const message = document.getElementById("message");
-    const explosionOverlay = document.getElementById("explosion");
-    const explosionText = document.getElementById("explosionText");
-    const resetBtn = document.getElementById("resetBtn");
-    const counter = document.getElementById("counter");
-    const recordContainer = document.getElementById("record");
-
-    let prankCount = 0;
-    let record = 0;
-    let clickCount = 0;
-    let firstRound = true;
-    let lastMessage = "";
+    const tube = document.getElementById("tube");
+    const randomText = document.getElementById("random-text");
+    const counterContainer = document.getElementById("counter-container");
+    const recordContainer = document.getElementById("record-container");
+    const pinkScreen = document.getElementById("pink-screen");
+    const finalText = document.getElementById("final-text");
 
     const messages = [
-      "Пока никто не видел вы намазали пастой тренера Настю 😉",
+      "Пока никто не видел, вы намазали пастой тренера Настю 😉",
       "Шалость удалась! Вы измазали пастой вашего соседа 😁",
       "Вы измазали пастой куратора Сашу 😅",
-      "Кажется кто-то измазал пастой тренера Машу... и да, это были Вы 😏",
-      "Вас хотели измазать пастой, но вы оказались быстрее!",
-      "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали её пастой 😅",
-      "Вы измазали пастой другого шагателя!",
-      "Вы измазали пастой зеркало в ванной",
-      "🤣","😜","🙊","😏"
+      "Кажется, кто-то измазал пастой тренера Машу... и да, это были Вы 😏",
+      "Вас хотели измазать пастой, но вы оказались быстрее! 😜",
+      "Тренеру Тане сегодня не повезло! Вы измазали её пастой 🤭",
+      "Вы измазали пастой другого шагателя! 😆",
+      "Вы измазали пастой зеркало в ванной 🪞",
+      "🤣", "😜", "🙈", "🤭"
     ];
 
-    function randomMessage() {
-      let newMsg;
-      do { newMsg = messages[Math.floor(Math.random() * messages.length)]; }
-      while (newMsg === lastMessage);
-      lastMessage = newMsg;
-      return newMsg;
+    let clickCount = 0;
+    let prankCount = 0;
+    let record = 0;
+    let lastMessage = "";
+    let firstExplosion = true;
+    let explosionChance = 0.05;
+
+    function getRandomMessage() {
+      let msg;
+      do {
+        msg = messages[Math.floor(Math.random() * messages.length)];
+      } while (msg === lastMessage);
+      lastMessage = msg;
+      return msg;
     }
 
-    function showPopup(text) {
-      const popup = document.createElement("div");
-      popup.className = "popup";
-      popup.textContent = text;
-      document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 2000);
-    }
+    tube.addEventListener("click", () => {
+      tube.style.transform = "scale(0.9)";
+      setTimeout(() => tube.style.transform = "scale(1)", 100);
 
-    function updateRecord() {
-      if (!firstRound && prankCount > record) {
-        record = prankCount;
-        recordContainer.style.display = "block";
-        recordContainer.textContent = "Рекорд: " + record;
-        confetti({
-          particleCount: 150,
-          spread: 80,
-          colors: ["#CF2C02", "#FFBA08", "#E85D04"]
-        });
-      }
-    }
-
-    function triggerExplosion() {
-      toothpasteImg.style.display = "none";
-      explosionVideo.style.display = "block";
-      explosionVideo.currentTime = 0;
-      explosionVideo.play();
-
-      explosionVideo.onended = () => {
-        explosionOverlay.classList.add("show");
-        setTimeout(() => {
-          explosionText.style.display = "block";
-          resetBtn.style.display = "inline-block";
-          prankCount = 0;
-          counter.textContent = "Проказы с пастой: 0";
-        }, 500);
-      };
-    }
-
-    function handleClick() {
-      toothpasteImg.classList.add("shake");
-      setTimeout(() => toothpasteImg.classList.remove("shake"), 300);
-
-      if (toothpasteImg.src.includes("intro.jpg")) {
-        toothpasteImg.src = "toothpaste.png";
-        counter.style.display = "block";
-        prankCount = 1;
-        counter.textContent = "Проказы с пастой: 1";
-        message.textContent = randomMessage();
+      if (tube.src.includes("intro.jpg")) {
+        tube.src = "toothpaste.png";
+        counterContainer.style.display = "block";
+        randomText.textContent = getRandomMessage();
+        prankCount++;
+        counterContainer.textContent = `Проказы с пастой: ${prankCount}`;
         return;
       }
 
       clickCount++;
-      let explodeChance = firstRound
-        ? (clickCount >= 3 && clickCount <= 4 ? 1 : 0)
-        : Math.min(0.1 + 0.1 * clickCount, 0.5);
 
-      if (Math.random() < explodeChance) {
-        message.textContent = "";
-        triggerExplosion();
-        firstRound = false;
-        clickCount = 0;
+      if (shouldExplode()) {
+        playExplosion();
       } else {
         prankCount++;
-        counter.textContent = "Проказы с пастой: " + prankCount;
-        message.textContent = randomMessage();
+        counterContainer.textContent = `Проказы с пастой: ${prankCount}`;
+        randomText.textContent = getRandomMessage();
+        checkRecord();
+        explosionChance = Math.min(explosionChance + 0.05, 0.5);
+      }
+    });
 
-        if (Math.random() < 0.2) {
-          const bonus = Math.random() < 0.5 ? 1 : 2;
-          prankCount += bonus;
-          counter.textContent = "Проказы с пастой: " + prankCount;
-          showPopup(`+${bonus} бонусных очков 🎁`);
+    function shouldExplode() {
+      if (firstExplosion && clickCount >= 3 && clickCount <= 4) {
+        firstExplosion = false;
+        return true;
+      }
+      return Math.random() < explosionChance;
+    }
+
+    function playExplosion() {
+      const video = document.createElement("video");
+      video.src = "toothpaste.mp4";
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.width = "200px";
+
+      tube.replaceWith(video);
+      randomText.textContent = "";
+
+      video.addEventListener("ended", () => {
+        tube.src = "toothpaste.png";
+        video.replaceWith(tube);
+        setTimeout(() => {
+          pinkScreen.style.display = "block";
+          pinkScreen.style.opacity = "1";
+        }, 200);
+        setTimeout(() => {
+          finalText.style.display = "block";
+        }, 1200);
+        clickCount = 0;
+        prankCount = 0;
+        counterContainer.textContent = `Проказы с пастой: 0`;
+        explosionChance = 0.05;
+      });
+    }
+
+    function resetGame() {
+      pinkScreen.style.display = "none";
+      pinkScreen.style.opacity = "0";
+      finalText.style.display = "none";
+      randomText.textContent = "";
+    }
+
+    function checkRecord() {
+      if (prankCount > record) {
+        if (prankCount % 5 === 0) {
+          record = prankCount;
+          recordContainer.style.display = "block";
+          recordContainer.textContent = `Рекорд: ${record}`;
+          launchConfetti();
         }
-
-        if (prankCount === 5) showPopup("🎈 Ачивка: Проказник!");
-        if (prankCount === 10) showPopup("🏅 Ачивка: Мастер пасты!");
-        if (prankCount === 15) showPopup("👑 Ачивка: Король шалостей!");
-
-        updateRecord();
       }
     }
 
-    toothpasteImg.addEventListener("click", handleClick);
-
-    resetBtn.addEventListener("click", () => {
-      explosionOverlay.classList.remove("show");
-      explosionText.style.display = "none";
-      resetBtn.style.display = "none";
-      explosionVideo.style.display = "none";
-      toothpasteImg.style.display = "block";
-      toothpasteImg.src = "toothpaste.png";
-    });
+    function launchConfetti() {
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        colors: ["#CF2C02", "#FFBA08", "#E85D04"],
+        origin: { y: 0.6 }
+      });
+    }
   </script>
 </body>
 </html>
