@@ -216,8 +216,6 @@
 
       if (clickCount >= nextExplosion) {
         clickCount = 0;
-        counterValue = 0;
-        updateCounter();
 
         videoContainer.style.display = "block";
         explosionVideo.currentTime = 0;
@@ -236,6 +234,8 @@
         explosionVideo.onended = () => {
           finalMessage.style.display = "block";
           setTimeout(() => resetButton.style.display = "block", 800);
+          counterValue = 0; // 🔹 Теперь обнуляется только после окончания видео
+          updateCounter();
           nextExplosion = 3 + Math.floor(Math.random() * 3);
         };
 
