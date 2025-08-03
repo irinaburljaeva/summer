@@ -6,7 +6,10 @@
   <title>Шалости с пастой</title>
   <style>
     /* Убираем синее выделение */
-    img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; }
+    img, video { 
+      -webkit-user-drag: none; 
+      -webkit-tap-highlight-color: transparent; 
+    }
 
     body {
       margin: 0;
@@ -201,7 +204,11 @@
     </div>
 
     <img id="toothpaste-img" src="intro.jpg" alt="Intro"/>
-    <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;"></video>
+    <video id="toothpaste-video" muted playsinline style="display:none;">
+      <source src="toothpaste.mp4" type="video/mp4">
+      Ваш браузер не поддерживает видео.
+    </video>
+
     <div id="message"></div>
     <button id="reset-btn">Стереть пасту</button>
   </div>
@@ -277,18 +284,21 @@
       lastMsg = m;
       return m;
     }
+
     function showMessage(t) {
       msg.textContent = t;
       msg.classList.remove("show");
       void msg.offsetWidth;
       msg.classList.add("show");
     }
+
     function showAchievement(a) {
       popup.textContent = `${a.emoji} ${a.name} — ${a.note}`;
       popup.classList.add("show");
       achBox.innerHTML += `<span>${a.emoji}</span>`;
       setTimeout(()=>popup.classList.remove("show"),2000);
     }
+
     function checkAchievements() {
       achievements.forEach(a=>{
         if(!a.unlocked && a.cond(score)) {
@@ -297,6 +307,7 @@
         }
       });
     }
+
     function updateScore() {
       scoreBox.textContent = `Проказы с пастой: ${score}`;
       if(!firstRound && score>record) {
@@ -338,10 +349,9 @@
         };
 
       } else {
-        // начисляем очки + бонусы только после первого круга
+        // начисляем очки и бонусы (начиная со 2-го круга)
         let pts = superClick ? 3 : 1;
         superClick = false;
-
         if(!firstRound) {
           bonuses.forEach(b=>{
             if(Math.random()<b.chance) {
