@@ -22,13 +22,22 @@
       min-height: 100vh;
       position: relative;
     }
-    img {
+    .media-wrapper {
+      position: relative;
+      width: 220px;
+      height: auto;
+    }
+    .media-wrapper img,
+    .media-wrapper video {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 220px;
       user-select: none;
       outline: none;
     }
-    img:focus {
-      outline: none;
+    .media-wrapper video {
+      display: none;
     }
     .shake {
       animation: shake 0.4s;
@@ -42,7 +51,7 @@
       100% { transform: translate(0px, 0px) rotate(0deg); }
     }
     .message {
-      margin-top: 20px;
+      margin-top: 250px;
       font-size: 18px;
       min-height: 40px;
     }
@@ -125,7 +134,10 @@
 </head>
 <body>
   <div class="container">
-    <img id="toothpaste" src="intro.jpg" alt="Зубная паста" tabindex="-1" />
+    <div class="media-wrapper">
+      <img id="toothpaste" src="intro.jpg" alt="Зубная паста" tabindex="-1" />
+      <video id="explosionVideo" src="toothpaste.mp4"></video>
+    </div>
     <div class="message" id="message"></div>
     <div class="counter-container" id="counter">Проказы с пастой: 0</div>
     <div class="record-container" id="record">Рекорд: 0</div>
@@ -135,15 +147,13 @@
   <div class="explosion-overlay" id="explosion"></div>
   <div class="explosion-text" id="explosionText">Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках, и в итоге вы измазались сами 🙈</div>
 
-  <video id="explosionVideo" src="toothpaste.mp4" style="display:none"></video>
-
   <script>
     const toothpasteImg = document.getElementById("toothpaste");
+    const explosionVideo = document.getElementById("explosionVideo");
     const message = document.getElementById("message");
     const explosionOverlay = document.getElementById("explosion");
     const explosionText = document.getElementById("explosionText");
     const resetBtn = document.getElementById("resetBtn");
-    const explosionVideo = document.getElementById("explosionVideo");
     const counter = document.getElementById("counter");
     const recordContainer = document.getElementById("record");
 
@@ -200,13 +210,14 @@
       explosionVideo.currentTime = 0;
       explosionVideo.play();
 
-      setTimeout(() => { explosionOverlay.classList.add("show"); }, explosionVideo.duration * 600);
-
       explosionVideo.onended = () => {
-        explosionText.style.display = "block";
-        resetBtn.style.display = "inline-block";
-        prankCount = 0;
-        counter.textContent = "Проказы с пастой: 0";
+        explosionOverlay.classList.add("show");
+        setTimeout(() => {
+          explosionText.style.display = "block";
+          resetBtn.style.display = "inline-block";
+          prankCount = 0;
+          counter.textContent = "Проказы с пастой: 0";
+        }, 500);
       };
     }
 
