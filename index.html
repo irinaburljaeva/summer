@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Игра с пастой</title>
   <style>
-    /* Отключаем синее выделение при клике */
+    /* Убираем синее выделение при клике */
     img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; outline: none; }
 
     body {
@@ -22,8 +22,7 @@
       justify-content: center;
       align-items: center;
     }
-    #score-container,
-    #record-container {
+    #score-container, #record-container {
       position: absolute;
       padding: 8px 12px;
       border-radius: 8px;
@@ -36,28 +35,7 @@
     #score-container { top: 16px; right: 16px; }
     #record-container { top: 16px; left: 16px; }
 
-    /* Панель достижений */
-    #achieve-bar {
-      position: absolute;
-      top: 40px;
-      left: 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 18px;
-      color: #333;
-      pointer-events: none;
-    }
-    #achieve-bar .label {
-      font-weight: bold;
-      margin-right: 6px;
-    }
-    #achieve-bar span {
-      cursor: default;
-    }
-
-    #toothpaste-img,
-    #toothpaste-video {
+    #toothpaste-img, #toothpaste-video {
       width: 200px;
       cursor: pointer;
     }
@@ -71,7 +49,7 @@
       75%     { transform: translateX(-4px); }
     }
 
-    /* Появление текста/эмодзи */
+    /* Текст/эмодзи */
     @keyframes popText {
       0%   { opacity: 0; transform: scale(0.6); }
       60%  { opacity: 1; transform: scale(1.1); }
@@ -99,7 +77,7 @@
       color: #fff;
       padding: 10px 16px;
       border-radius: 8px;
-      font-size: 18px;
+      font-size: 16px;
       opacity: 0;
       z-index: 20;
       transition: opacity 0.3s, transform 0.3s;
@@ -110,28 +88,9 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    #bonus {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #ffeaa7;
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-size: 22px;
-      font-weight: bold;
-      display: none;
-      animation: fadeInBonus 0.5s forwards;
-      z-index: 12;
-    }
-    @keyframes fadeInBonus {
-      from { opacity: 0; transform: translate(-50%,-30px) scale(0.8); }
-      to   { opacity: 1; transform: translate(-50%,-50%) scale(1); }
-    }
-
     #pink-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
       background: #FFD6E7;
       opacity: 0;
       pointer-events: none;
@@ -151,7 +110,7 @@
       background: white;
       padding: 16px 24px;
       border-radius: 12px;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: bold;
       display: none;
       z-index: 11;
@@ -162,8 +121,7 @@
     }
 
     #reset-btn {
-      position: fixed;
-      top: 70%; left: 50%;
+      position: fixed; top: 70%; left: 50%;
       transform: translateX(-50%);
       padding: 10px 20px;
       background: #CF2C02;
@@ -182,12 +140,7 @@
     <div id="score-container">Проказы с пастой: 0</div>
     <div id="record-container">Рекорд: 0</div>
 
-    <!-- Панель с надписью и иконками полученных ачивок -->
-    <div id="achieve-bar">
-      <div class="label">Награды:</div>
-    </div>
-
-    <img id="toothpaste-img" src="intro.jpg" alt="Intro" draggable="false" />
+    <img id="toothpaste-img" src="intro.jpg" alt="Intro" draggable="false"/>
     <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;"></video>
     <div id="message"></div>
     <button id="reset-btn">Стереть пасту</button>
@@ -195,33 +148,28 @@
 
   <div id="pink-overlay"></div>
   <div id="final-text"></div>
-  <div id="bonus"></div>
   <div id="achieve-popup"></div>
 
   <script>
-    const img       = document.getElementById("toothpaste-img"),
-          vid       = document.getElementById("toothpaste-video"),
-          msg       = document.getElementById("message"),
-          scoreBox  = document.getElementById("score-container"),
-          recBox    = document.getElementById("record-container"),
-          bar       = document.getElementById("achieve-bar"),
-          overlay   = document.getElementById("pink-overlay"),
-          finalText = document.getElementById("final-text"),
-          resetBtn  = document.getElementById("reset-btn"),
-          bonus     = document.getElementById("bonus"),
-          popup     = document.getElementById("achieve-popup");
+    const img         = document.getElementById("toothpaste-img"),
+          vid         = document.getElementById("toothpaste-video"),
+          msg         = document.getElementById("message"),
+          scoreBox    = document.getElementById("score-container"),
+          recBox      = document.getElementById("record-container"),
+          overlay     = document.getElementById("pink-overlay"),
+          finalText   = document.getElementById("final-text"),
+          resetBtn    = document.getElementById("reset-btn"),
+          popup       = document.getElementById("achieve-popup");
 
     let score            = 0,
         record           = 0,
         firstRound       = true,
         clicks           = 0,
         explosionCount   = 0,
-        challengeSuccess = false,
         explosionChance  = 0.05,
         lastMsg          = "";
 
     const texts = [
-      // ... ваши тексты ...
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
       "Шалость удалась! Вы измазали пастой вашего соседа 😁",
       "Вы измазали пастой куратора Сашу 😅",
@@ -237,30 +185,28 @@
     ];
     const emojis = ["😂","🤣","🙈","😏","🥳"];
     const explosionTexts = [
-      "Ахаха! Тюбик взорвался и теперь ты вся в пасте! 🙈",
+      "Ахаха! Тюбик взорвался и теперь ты вся в пастe! 🙈",
       "Упс... Тюбик лопнул и паста разлетелась по тебе! 😢",
       "Ой-ой! Паста брызнула на тебя вместо других! 🤷‍♀️",
       "Слишком усердно… теперь ты в пасте по локоть! 😭",
       "Тюбик решил пошалить и промазал тебя! 😞"
     ];
-    const bonusesArr = [
-      { chance:0.15, text:"Бонус! +2 проказы 🎁", add:2 },
-      { chance:0.10, text:"Супер-клик! Следующий +3 🔥", superClick:true }
-    ];
-    let superClick = false;
 
-    // список ачивок
     const achievements = [
-      { id:'lightMischief', name:'Лёгкая пакость', emoji:'🪥',         condition: s=>s>=5,               unlocked:false },
-      { id:'failDay',       name:'Неудачный день', emoji:'💥',         condition: ()=>explosionCount>=5, unlocked:false },
-      { id:'speedMischief', name:'Молниеносная пакость', emoji:'⚡',   condition: ()=>challengeSuccess,   unlocked:false },
-      { id:'mainMischief',  name:'Главный проказник', emoji:'🏅',       condition: s=>s>=10,              unlocked:false },
-      { id:'campMischief',  name:'Главный пакостник лагеря', emoji:'👑', condition: s=>s>=20,              unlocked:false },
-      { id:'collector',     name:'Коллекционер', emoji:'💎',            condition: ()=>achievements
-                                                               .filter(a=>a.id!=='collector')
-                                                               .every(a=>a.unlocked),
-                                                            unlocked:false }
+      { id:'lightMischief', name:'Лёгкая пакость', emoji:'🪥',  condition:s=>s>=5,               unlocked:false, note:'за 5 проказ' },
+      { id:'failDay',       name:'Неудачный день', emoji:'💥',  condition:()=>explosionCount>=5, unlocked:false, note:'за 5 взрывов' },
+      { id:'speedMischief', name:'Молниеносная пакость', emoji:'⚡', condition:()=>challengeSuccess, unlocked:false, note:'за челлендж 5/3' },
+      { id:'mainMischief',  name:'Главный проказник', emoji:'🏅',  condition:s=>s>=10,            unlocked:false, note:'за 10 проказ' },
+      { id:'campMischief',  name:'Главный пакостник лагеря',emoji:'👑',condition:s=>s>=20,            unlocked:false, note:'за 20 проказ' },
+      { id:'collector',     name:'Коллекционер', emoji:'💎',     condition:()=>achievements
+                                                         .filter(a=>a.id!=='collector')
+                                                         .every(a=>a.unlocked),
+                                                         unlocked:false,
+                                                         note:'за все награды'}
     ];
+
+    let superClick = false,
+        challengeSuccess = false;
 
     function randomMsg() {
       let m;
@@ -272,127 +218,106 @@
       lastMsg = m;
       return m;
     }
-
     function showMessage(text) {
       msg.textContent = text;
       msg.classList.remove("show");
       void msg.offsetWidth;
       msg.classList.add("show");
     }
-
-    function showAchievement(name) {
-      popup.textContent = `🏅 ${name} получена!`;
+    function showAchievement(a) {
+      popup.textContent = `${a.emoji} ${a.name} — ${a.note}`;
       popup.classList.add("show");
-      setTimeout(()=> popup.classList.remove("show"), 1800);
+      // добавляем иконку к рекорду
+      recBox.textContent = recBox.textContent + ' ' + a.emoji;
+      setTimeout(()=>popup.classList.remove("show"),2000);
     }
-
-    function appendAchievementIcon(emoji, name) {
-      const span = document.createElement('span');
-      span.textContent = emoji;
-      span.title = name;           // тултип с названием
-      bar.append(span);
-    }
-
     function checkAchievements() {
-      achievements.forEach(a => {
-        if (!a.unlocked && a.condition(score)) {
+      achievements.forEach(a=>{
+        if(!a.unlocked && a.condition(score)){
           a.unlocked = true;
-          showAchievement(a.name);
-          appendAchievementIcon(a.emoji, a.name);
+          showAchievement(a);
         }
       });
     }
-
-    function updateScore() {  
+    function updateScore(){
       scoreBox.textContent = `Проказы с пастой: ${score}`;
-      if (!firstRound && score > record) {
+      if(!firstRound && score>record){
         record = score;
         recBox.textContent = `Рекорд: ${record}`;
       }
       checkAchievements();
     }
 
-    img.addEventListener("mousedown", e=>e.preventDefault());
-    img.addEventListener("click", ()=>{
+    img.addEventListener("mousedown",e=>e.preventDefault());
+    img.addEventListener("click",()=>{
       img.classList.add("shake");
       setTimeout(()=>img.classList.remove("shake"),300);
 
-      if (firstRound && img.src.includes("intro.jpg")) {
-        img.src = "toothpaste.png";
-        scoreBox.style.display = "block";
+      if(firstRound && img.src.includes("intro.jpg")){
+        img.src="toothpaste.png";
+        scoreBox.style.display="block";
         return;
       }
 
       clicks++;
-
-      if (clicks>=3 && Math.random()<explosionChance) {
-        // ВЗРЫВ
+      if(clicks>=3 && Math.random()<explosionChance){
         explosionCount++;
         checkAchievements();
 
-        img.style.display = "none";
-        vid.style.display = "block";
-        vid.currentTime = 0;
+        img.style.display="none";
+        vid.style.display="block";
+        vid.currentTime=0;
         vid.play();
-        msg.textContent = "";
-        scoreBox.style.display = "none";
-        if (!firstRound) recBox.style.display = "block";
+        msg.textContent="";
+        scoreBox.style.display="none";
+        if(!firstRound) recBox.style.display="block";
 
-        vid.onended = ()=>{
+        vid.onended=()=>{
           overlay.classList.add("show");
-          // рандомный текст взрыва
           finalText.textContent = explosionTexts[
             Math.floor(Math.random()*explosionTexts.length)
           ];
           setTimeout(()=>{
-            finalText.style.display = "block";
-            resetBtn.style.display = "block";
+            finalText.style.display="block";
+            resetBtn.style.display="block";
           },500);
         };
 
       } else {
-        // обычный клик
-        let pts = superClick ? 3 : 1;
-        superClick = false;
+        let pts = superClick?3:1;
+        superClick=false;
 
-        bonusesArr.forEach(b=>{
-          if (Math.random()<b.chance) {
-            bonus.textContent = b.text;
-            bonus.style.display = "block";
-            setTimeout(()=>bonus.style.display="none",1500);
-            if (b.superClick) superClick = true;
-            else pts += b.add;
-          }
-        });
+        achievementsArr = [];
+        // можно вставить бонусы-логикe здесь...
 
-        score += pts;
+        score+=pts;
         updateScore();
         showMessage(randomMsg());
         explosionChance = Math.min(0.5, explosionChance+0.05);
       }
     });
 
-    resetBtn.addEventListener("click", ()=>{
-      if (firstRound) {
-        record = score;
-        recBox.textContent = `Рекорд: ${record}`;
+    resetBtn.addEventListener("click",()=>{
+      if(firstRound){
+        record=score;
+        recBox.textContent=`Рекорд: ${record}`;
       }
       overlay.classList.remove("show");
-      finalText.style.display = "none";
-      resetBtn.style.display = "none";
-      vid.style.display = "none";
-      img.style.display = "block";
-      img.src = "toothpaste.png";
-      msg.textContent = "";
-      clicks = 0;
-      explosionChance = 0.05;
-      score = 0;
-      scoreBox.textContent = "Проказы с пастой: 0";
-      scoreBox.style.display = "block";
-      recBox.style.display = "block";
-      firstRound = false;
-      challengeSuccess = false;
+      finalText.style.display="none";
+      resetBtn.style.display="none";
+      vid.style.display="none";
+      img.style.display="block";
+      img.src="toothpaste.png";
+      msg.textContent="";
+      clicks=0;
+      explosionChance=0.05;
+      score=0;
+      scoreBox.textContent="Проказы с пастой: 0";
+      scoreBox.style.display="block";
+      recBox.style.display="block";
+      firstRound=false;
+      challengeSuccess=false;
     });
   </script>
 </body>
-</html>
+  </html>
