@@ -2,211 +2,181 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Шалость с пастой</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Весёлая паста</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      background: #fff;
+      background: white;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       font-family: Arial, sans-serif;
-      overflow: hidden;
+      overflow-x: hidden;
+      user-select: none;
     }
-
-    #counter {
-      position: absolute;
+    .counter {
+      position: fixed;
       top: 10px;
       right: 20px;
+      background: #cf2c02;
+      color: white;
       font-size: 18px;
       font-weight: bold;
-      background: #CF2C02;
-      color: white;
-      padding: 8px 14px;
+      padding: 8px 16px;
       border-radius: 20px;
       display: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
-
-    .toothpaste {
-      width: 200px;
+    img {
+      width: 250px;
       cursor: pointer;
+      outline: none;
+      border: none;
       user-select: none;
+    }
+    img:focus {
       outline: none;
     }
-
     .shake {
       animation: shake 0.3s;
     }
-
     @keyframes shake {
-      0% { transform: translate(0,0); }
-      25% { transform: translate(-5px,0); }
-      50% { transform: translate(5px,0); }
-      75% { transform: translate(-5px,0); }
-      100% { transform: translate(0,0); }
+      0% { transform: translate(0px, 0px) rotate(0deg); }
+      25% { transform: translate(3px, 3px) rotate(-2deg); }
+      50% { transform: translate(-3px, -2px) rotate(2deg); }
+      75% { transform: translate(2px, -3px) rotate(-2deg); }
+      100% { transform: translate(0px, 0px) rotate(0deg); }
     }
-
-    #message {
+    .message {
       margin-top: 20px;
-      font-size: 18px;
-      color: #333;
+      font-size: 20px;
+      font-weight: bold;
       text-align: center;
-      max-width: 300px;
+      min-height: 40px;
     }
-
-    #emoji {
+    .emoji {
       font-size: 40px;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: popUp 0.5s forwards;
+      margin-top: 10px;
+      animation: popUp 0.5s ease forwards;
     }
-
     @keyframes popUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
-
-    #overlay {
+    video {
+      display: none;
+      width: 300px;
+      margin-top: 20px;
+    }
+    .overlay {
       position: fixed;
       top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: #FFD6E8;
+      width: 100%; height: 100%;
+      background: #ffd6e8;
       opacity: 0;
       pointer-events: none;
       z-index: 5;
     }
-
-    #videoContainer {
-      display: none;
+    .final-message {
       position: fixed;
-      top: 50%;
+      top: 40%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 10;
-    }
-
-    video {
-      width: 250px;
-      border-radius: 10px;
-    }
-
-    #finalMessage {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 22px;
+      font-size: 24px;
       font-weight: bold;
-      color: #333;
-      text-align: center;
-      width: 80%;
-      z-index: 20;
-    }
-
-    #resetButton {
+      color: #000;
       display: none;
-      position: fixed;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
+      z-index: 10;
+      text-align: center;
+    }
+    .reset-btn {
+      display: none;
+      margin-top: 20px;
       padding: 10px 20px;
-      background: #CF2C02;
+      font-size: 18px;
+      background: #cf2c02;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
-      z-index: 20;
+      z-index: 10;
     }
-
-    img:focus { outline: none; }
   </style>
 </head>
 <body>
-  <div id="counter">Проказы с пастой: 0</div>
-  <img id="image" src="intro.jpg" class="toothpaste" tabindex="0" />
-  <div id="message"></div>
-  <div id="emoji"></div>
-
-  <div id="overlay"></div>
-
-  <div id="videoContainer">
-    <video id="explosionVideo" src="toothpaste.mp4"></video>
-  </div>
-
-  <div id="finalMessage">Ой! Кто-то переусердствовал. Тюбик взорвался, и вы измазались сами 🙈</div>
-  <button id="resetButton">Стереть пасту</button>
+  <div class="counter" id="counter">Проказы с пастой: 0</div>
+  <img id="toothpaste" src="intro.jpg" alt="Тюбик пасты" />
+  <video id="explosionVideo">
+    <source src="toothpaste.mp4" type="video/mp4" />
+    Ваш браузер не поддерживает видео.
+  </video>
+  <div class="message" id="message"></div>
+  <div class="emoji" id="emoji"></div>
+  <div class="overlay" id="overlay"></div>
+  <div class="final-message" id="finalMessage">Ой! Кто-то переусердствовал.<br>Тюбик с пастой взорвался прямо у вас в руках,<br>и вы измазались сами 🙈</div>
+  <button class="reset-btn" id="resetButton">Стереть пасту</button>
 
   <script>
-    const image = document.getElementById("image");
+    const toothpaste = document.getElementById("toothpaste");
+    const explosionVideo = document.getElementById("explosionVideo");
     const message = document.getElementById("message");
     const emoji = document.getElementById("emoji");
     const overlay = document.getElementById("overlay");
-    const videoContainer = document.getElementById("videoContainer");
-    const explosionVideo = document.getElementById("explosionVideo");
     const finalMessage = document.getElementById("finalMessage");
     const resetButton = document.getElementById("resetButton");
     const counter = document.getElementById("counter");
 
     const messages = [
-      "Пока никто не видел вы намазали пастой тренера Настю 😉",
+      "Пока никто не видел, вы намазали пастой тренера Настю 😉",
       "Шалость удалась! Вы измазали пастой вашего соседа 😁",
       "Вы измазали пастой куратора Сашу 😅",
-      "Кажется кто-то измазал пастой тренера Машу... и да, это были Вы 😏",
+      "Кажется, кто-то измазал пастой тренера Машу... и да, это были вы 😏",
       "Вас хотели измазать пастой, но вы оказались быстрее!",
-      "Тренеру Тане сегодня не повезло! Вы измазали её пастой!",
+      "Тренеру Тане сегодня не повезло! Вы измазали её пастой ❤️",
       "Вы измазали пастой другого шагателя!",
-      "Вы измазали пастой зеркало в ванной",
-      "Вы испортили чужую зубную щётку пастой 😂",
-      "Вы измазали пастой обувь соседа 😆"
+      "Вы измазали пастой зеркало в ванной!",
+      "Тюбик пасты снова оказался в ваших руках – шалость продолжается!"
     ];
-
-    const emojis = ["😂", "😜", "😅", "🤪", "🙃", "😉"];
+    const emojis = ["😂", "🤣", "😜", "😏", "🙃", "😆"];
 
     let clickCount = 0;
     let counterValue = 0;
     let nextExplosion = 3 + Math.floor(Math.random() * 3);
-    let lastMessage = "";
+    let lastMessageIndex = -1;
 
     function updateCounter() {
       counter.textContent = `Проказы с пастой: ${counterValue}`;
     }
 
     function showRandomMessage() {
-      if (Math.random() < 0.4) {
+      emoji.textContent = "";
+      message.textContent = "";
+
+      if (Math.random() < 0.25) {
         emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        emoji.style.animation = "none";
-        emoji.offsetHeight; 
-        emoji.style.animation = "popUp 0.5s forwards";
-        message.textContent = "";
       } else {
-        let newMessage;
+        let newIndex;
         do {
-          newMessage = messages[Math.floor(Math.random() * messages.length)];
-        } while (newMessage === lastMessage);
-        lastMessage = newMessage;
-        message.textContent = newMessage;
-        emoji.textContent = "";
+          newIndex = Math.floor(Math.random() * messages.length);
+        } while (newIndex === lastMessageIndex);
+        lastMessageIndex = newIndex;
+        message.textContent = messages[newIndex];
       }
     }
 
-    image.addEventListener("click", () => {
-      image.classList.add("shake");
-      setTimeout(() => image.classList.remove("shake"), 300);
+    toothpaste.addEventListener("click", () => {
+      toothpaste.classList.add("shake");
+      setTimeout(() => toothpaste.classList.remove("shake"), 300);
 
-      if (image.src.includes("intro.jpg")) {
-        image.src = "toothpaste.png";
+      if (toothpaste.src.includes("intro.jpg")) {
+        toothpaste.src = "toothpaste.png";
         counter.style.display = "block";
-        counterValue++;
+        clickCount = 0;
+        counterValue = 1;
         updateCounter();
         showRandomMessage();
         return;
@@ -215,30 +185,29 @@
       clickCount++;
 
       if (clickCount >= nextExplosion) {
-        clickCount = 0;
-
-        videoContainer.style.display = "block";
+        explosionVideo.style.display = "block";
         explosionVideo.currentTime = 0;
         explosionVideo.play();
-
         message.textContent = "";
         emoji.textContent = "";
 
-        let opacity = 0;
-        const fadeIn = setInterval(() => {
-          opacity += 0.05;
-          overlay.style.opacity = opacity;
-          if (opacity >= 1) clearInterval(fadeIn);
-        }, 100);
-
         explosionVideo.onended = () => {
+          // плавное появление розового экрана
+          let opacity = 0;
+          const fadeIn = setInterval(() => {
+            opacity += 0.05;
+            overlay.style.opacity = opacity;
+            if (opacity >= 1) clearInterval(fadeIn);
+          }, 80);
+
           finalMessage.style.display = "block";
           setTimeout(() => resetButton.style.display = "block", 800);
-          counterValue = 0; // 🔹 Теперь обнуляется только после окончания видео
+
+          counterValue = 0;
           updateCounter();
+          clickCount = 0;
           nextExplosion = 3 + Math.floor(Math.random() * 3);
         };
-
       } else {
         counterValue++;
         updateCounter();
@@ -250,7 +219,7 @@
       overlay.style.opacity = 0;
       finalMessage.style.display = "none";
       resetButton.style.display = "none";
-      videoContainer.style.display = "none";
+      explosionVideo.style.display = "none";
     });
   </script>
 </body>
