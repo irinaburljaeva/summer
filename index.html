@@ -28,8 +28,8 @@
     }
 
     .svg-text {
-      width: 300px;
-      height: 100px;
+      width: 400px;
+      height: 150px;
       margin-top: 20px;
       opacity: 0;
       transition: opacity 0.3s ease;
@@ -38,12 +38,12 @@
     .svg-text path {
       fill: none;
       stroke: #ffffff;
-      stroke-width: 4px;
+      stroke-width: 6px;
       stroke-linecap: round;
       stroke-linejoin: round;
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 1000;
-      animation: draw 2s forwards;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      animation: draw 3s forwards;
     }
 
     @keyframes draw {
@@ -78,7 +78,7 @@
   <img src="toothpaste.png" class="toothpaste" id="tube" alt="Тюбик пасты"/>
 
   <!-- SVG для рисования слова -->
-  <svg class="svg-text" id="svgText" viewBox="0 0 500 100">
+  <svg class="svg-text" id="svgText" viewBox="0 0 800 200">
     <path id="pathText" d=""></path>
   </svg>
 
@@ -90,12 +90,8 @@
     const pathText = document.getElementById('pathText');
     const message = document.getElementById('message');
 
-    // Пути для разных слов (можно заменить на другие надписи)
-    const paths = [
-      "M10 80 Q 52 10, 95 80 T 180 80", // волнистая линия
-      "M10 80 Q 50 20, 100 80 Q 150 140, 200 80", // две волны
-      "M10 50 C 50 10, 150 90, 250 50 C 300 10, 400 90, 480 50" // длинная волна
-    ];
+    // Path для слова "ШАГАЙ!" (создан вручную как контур букв)
+    const wordPath = "M40 150 L40 50 M40 100 L100 100 M120 150 L120 50 L180 50 L180 150 M200 150 L200 50 L260 150 L320 50 L320 150 M340 150 L340 50 L400 50 L400 150 M430 150 L460 50 L490 150 M520 50 L520 150";
 
     const prankMessages = [
       "Ты намазал пастой друга! 😂",
@@ -115,19 +111,18 @@
     });
 
     function showPasteWord() {
-      const randomPath = paths[Math.floor(Math.random() * paths.length)];
-      pathText.setAttribute("d", randomPath);
+      pathText.setAttribute("d", wordPath);
 
       svgText.style.opacity = 1;
-      pathText.style.strokeDasharray = 1000;
-      pathText.style.strokeDashoffset = 1000;
+      pathText.style.strokeDasharray = 2000;
+      pathText.style.strokeDashoffset = 2000;
       pathText.style.animation = "none";
       void pathText.offsetWidth; // сброс анимации
-      pathText.style.animation = "draw 2s forwards";
+      pathText.style.animation = "draw 3s forwards";
 
       setTimeout(() => {
         svgText.style.opacity = 0;
-      }, 3000);
+      }, 4000);
     }
 
     function showMessage(text) {
