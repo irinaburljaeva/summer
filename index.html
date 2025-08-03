@@ -7,26 +7,34 @@
   <style>
     img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; background: white; font-family: Arial, sans-serif; text-align: center; }
-    #game-container { position: relative; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    #game-container {
+      position: relative; height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+    }
     #score-container, #record-container {
-      position: absolute; padding: 10px 15px; border-radius: 10px;
-      background: #CF2C02; color: #fff; font-weight: bold; font-size: 16px;
+      position: absolute; padding: 10px 15px;
+      border-radius: 10px; background: #CF2C02;
+      color: white; font-weight: bold; font-size: 16px;
       display: none;
     }
     #score-container { top: 20px; right: 20px; }
     #record-container{ top: 20px; left: 20px; }
+    /* ачивки теперь внутри record-container */
     #achievements {
-      position: absolute; bottom: -6px; left: 8px;
-      display: flex; gap: 4px; font-size: 18px;
-      pointer-events: none;
+      display: flex; gap: 4px;
+      margin-top: 4px;
+      font-size: 18px;
     }
-    #toothpaste-img, #toothpaste-video { width: 200px; cursor: pointer; user-select: none; }
+    #toothpaste-img, #toothpaste-video {
+      width: 200px; cursor: pointer; user-select: none;
+    }
     .shake { animation: shake 0.3s; }
     @keyframes shake {
       0%,100% { transform: translateX(0) }
-      25% { transform: translateX(-4px) }
-      50% { transform: translateX(4px) }
-      75% { transform: translateX(-4px) }
+      25%    { transform: translateX(-4px) }
+      50%    { transform: translateX(4px) }
+      75%    { transform: translateX(-4px) }
     }
     #message {
       margin-top: 20px; font-size: 20px; min-height: 1.2em;
@@ -41,54 +49,66 @@
     #achieve-popup {
       position: fixed; bottom: 20px; left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: #CF2C02; color: #fff; padding: 10px 16px; border-radius: 8px;
+      background: #CF2C02; color: #fff;
+      padding: 10px 16px; border-radius: 8px;
       font-size: 16px; opacity: 0; z-index: 20;
-      transition: opacity .3s, transform .3s; pointer-events: none;
+      transition: opacity .3s, transform .3s;
+      pointer-events: none;
     }
-    #achieve-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #achieve-popup.show {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
     #pink-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #FFD6E7; opacity: 0; pointer-events: none; z-index: 10;
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: #FFD6E7; opacity:0; pointer-events:none;
+      z-index:10;
     }
-    #pink-overlay.show { animation: fadeInOverlay 1.2s forwards; }
-    @keyframes fadeInOverlay { from{opacity:0} to{opacity:1} }
+    #pink-overlay.show {
+      animation: fadeInOverlay 1.2s forwards;
+    }
+    @keyframes fadeInOverlay { from { opacity:0 } to { opacity:1 } }
     #final-text {
       position: fixed; top:50%; left:50%;
       transform: translate(-50%,-50%);
-      background: #fff; padding: 16px 24px; border-radius: 12px;
-      font-size: 20px; font-weight: bold; display: none; z-index: 11;
+      background: #fff; padding: 16px 24px;
+      border-radius: 12px; font-size:20px; font-weight:bold;
+      display: none; z-index:11;
       animation: showFinal 0.5s forwards 0.3s;
     }
-    @keyframes showFinal { from{opacity:0} to{opacity:1} }
+    @keyframes showFinal { from { opacity:0 } to { opacity:1 } }
     #reset-btn {
-      position: fixed; top:70%; left:50%; transform: translateX(-50%);
-      padding:10px 20px; background:#CF2C02; color:#fff;
-      border:none; border-radius:8px; font-size:16px;
-      cursor:pointer; display:none; z-index:12;
+      position: fixed; top:70%; left:50%;
+      transform: translateX(-50%);
+      padding:10px 20px; background:#CF2C02;
+      color:#fff; border:none; border-radius:8px;
+      font-size:16px; cursor:pointer;
+      display:none; z-index:12;
     }
     #bonus {
       position: fixed; top:50%; left:50%;
       transform: translate(-50%,-50%);
-      font-size:24px; font-weight:bold; background:#ffeaa7;
-      padding:10px 20px; border-radius:12px;
-      display:none; animation: fadeInBonus .5s forwards; z-index:12;
+      font-size:24px; font-weight:bold;
+      background:#ffeaa7; padding:10px 20px;
+      border-radius:12px; display:none;
+      animation: fadeInBonus .5s forwards; z-index:12;
     }
     @keyframes fadeInBonus {
-      from{opacity:0; transform:translate(-50%,-30px) scale(0.8)}
-      to{opacity:1; transform:translate(-50%,-50%) scale(1)}
+      from { opacity:0; transform:translate(-50%,-30px) scale(0.8) }
+      to   { opacity:1; transform:translate(-50%,-50%) scale(1) }
     }
   </style>
 </head>
 <body>
   <div id="game-container">
     <div id="score-container">Проказы с пастой: 0</div>
-    <div id="record-container">Рекорд: 0</div>
-    <div id="achievements"></div>
+    <div id="record-container">
+      Рекорд: 0
+      <div id="achievements"></div>
+    </div>
 
     <img id="toothpaste-img" src="intro.jpg" alt="Intro"/>
     <video id="toothpaste-video" muted playsinline style="display:none;">
       <source src="toothpaste.mp4" type="video/mp4">
-      Ваш браузер не поддерживает видео.
     </video>
 
     <div id="message"></div>
@@ -121,7 +141,7 @@
         superClick      = false,
         protectedClicks = 0;
 
-    const messages = [
+    const messagesList = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
       "Шалость удалась! Вы измазали пастой вашего соседа 😁",
       "Вы измазали пастой куратора Сашу 😅",
@@ -134,7 +154,7 @@
     const emojis = ["😂","🤣","😜","🙈","🙃","😏"];
     const bonuses = [
       { chance: 0.15, text: "Бонус! +2 проказы 🎁", add: 2 },
-      { chance: 0.1,  text: "Супер-клик! Следующий +3 🔥", add: 0, superClick: true },
+      { chance: 0.1,  text: "Супер-клик! Следующий +3 🔥", superClick: true },
       { chance: 0.05, text: "Защитный слой! 5 кликов без взрыва 🛡️", reduce: 0.10 }
     ];
 
@@ -143,7 +163,7 @@
       do {
         m = Math.random() < 0.3
           ? emojis[Math.floor(Math.random()*emojis.length)]
-          : messages[Math.floor(Math.random()*messages.length)];
+          : messagesList[Math.floor(Math.random()*messagesList.length)];
       } while (m === lastMsg);
       lastMsg = m;
       return m;
@@ -153,7 +173,7 @@
       scoreBox.textContent = `Проказы с пастой: ${score}`;
       if (!firstRound && score > record) {
         record = score;
-        recBox.textContent = `Рекорд: ${record}`;
+        recBox.firstChild.nodeValue = `Рекорд: ${record}`;
       }
     }
 
@@ -162,6 +182,13 @@
       msg.classList.remove("show");
       void msg.offsetWidth;
       msg.classList.add("show");
+    }
+
+    function showAchievement(emoji, note) {
+      popup.textContent = `${emoji} ${note}`;
+      popup.classList.add("show");
+      achBox.innerHTML += `<span>${emoji}</span>`;
+      setTimeout(()=>popup.classList.remove("show"),2000);
     }
 
     function playExplosion() {
@@ -197,7 +224,7 @@
             extra += b.add;
           } else if (b.reduce) {
             explosionChance = Math.max(0.05, explosionChance - b.reduce);
-            protectedClicks = 5;  // следующие 5 кликов без взрыва
+            protectedClicks = 5;
           }
         }
       });
@@ -211,6 +238,7 @@
       if (firstRound && img.src.includes("intro.jpg")) {
         img.src = "toothpaste.png";
         scoreBox.style.display = "block";
+        recBox.style.display = "none";
         return;
       }
 
@@ -235,21 +263,18 @@
     });
 
     resetBtn.addEventListener("click", () => {
-      // Сразу переводим into второй раунд
       const wasFirst = firstRound;
       if (firstRound) {
         record = score;
-        recBox.textContent = `Рекорд: ${record}`;
+        recBox.firstChild.nodeValue = `Рекорд: ${record}`;
       }
       overlay.classList.remove("show");
       finalText.style.display = "none";
       resetBtn.style.display = "none";
       vid.style.display = "none";
       img.style.display = "block";
-      firstRound = false;            // <— теперь ставим флаг до смены картинки
-      img.src = wasFirst ? "intro.jpg" : "toothpaste.png";
-      // но если это был первый сброс, после него сразу покажем toothpaste
-      if (!wasFirst) img.src = "toothpaste.png";
+      firstRound = false;
+      img.src = wasFirst ? "toothpaste.png" : "toothpaste.png";
 
       msg.textContent = "";
       clickCount = 0;
@@ -257,7 +282,7 @@
       score = 0;
       scoreBox.textContent = "Проказы с пастой: 0";
       scoreBox.style.display = "block";
-      recBox.style.display = "block"; // рекорд виден со 2-го раунда
+      recBox.style.display = "block";
     });
   </script>
 </body>
