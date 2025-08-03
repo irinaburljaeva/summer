@@ -3,154 +3,156 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Весёлый тюбик пасты</title>
+  <title>Весёлая паста</title>
   <style>
     body {
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
       font-family: Arial, sans-serif;
-      overflow: hidden;
-      position: relative;
-    }
-    #toothpaste-container {
-      position: relative;
-      width: 250px;
-      cursor: pointer;
-      z-index: 2;
-    }
-    #toothpaste-container img,
-    #toothpaste-container video {
-      width: 100%;
-      display: block;
-    }
-    .shake {
-      animation: shake 0.3s;
-    }
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-      100% { transform: translateX(0); }
-    }
-    #message {
-      margin-top: 20px;
-      font-size: 18px;
       text-align: center;
-      max-width: 300px;
-      z-index: 2;
+      margin: 0;
+      padding: 2rem;
+      background: #f7f7f7;
     }
-    .emoji {
-      position: fixed;
-      font-size: 2rem;
-      animation: floatUp 1.5s ease-out forwards;
-      pointer-events: none;
+    .container {
+      max-width: 400px;
+      margin: auto;
     }
-    @keyframes floatUp {
-      0% { transform: translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateY(-120px) scale(1.5); opacity: 0; }
+    img {
+      width: 200px;
+      cursor: pointer;
+      transition: transform 0.2s;
     }
-
-    /* Размазывание пасты */
+    img:active {
+      transform: scale(0.95);
+    }
+    .message {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      min-height: 2rem;
+    }
+    video {
+      display: none;
+      width: 250px;
+      margin-top: 1rem;
+    }
     #paste-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: #f8bcd8; /* пастельно-розовый */
+      z-index: 10;
       opacity: 0;
-      z-index: 1;
-      animation: smear 1.5s forwards;
+      background: #eecbcb;
+      transition: opacity 1s ease;
     }
-    @keyframes smear {
-      0% { opacity: 0; transform: scale(0.5) rotate(0deg); border-radius: 50%; }
-      50% { opacity: 0.7; transform: scale(1.1) rotate(10deg); border-radius: 30%; }
-      100% { opacity: 0.9; transform: scale(1) rotate(0deg); border-radius: 0; }
+    #clear-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background: #cf2c02;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: none;
+      z-index: 20;
     }
   </style>
 </head>
 <body>
-  <div id="toothpaste-container">
-    <img id="tube" src="toothpaste.png" alt="Тюбик пасты" />
+  <div class="container">
+    <img id="toothpaste" src="toothpaste.png" alt="Тюбик пасты" />
+    <video id="paste-video" src="toothpaste.mp4"></video>
+    <div class="message" id="message"></div>
   </div>
-  <div id="message"></div>
+  <button id="clear-btn">Стереть пасту</button>
 
   <script>
-    const container = document.getElementById("toothpaste-container");
-    const tubeImg = document.getElementById("tube");
-    const messageBox = document.getElementById("message");
-    let clickCount = 0;
-
     const messages = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
       "Шалость удалась! Вы измазали пастой вашего соседа 😁",
       "Вы измазали пастой куратора Сашу 😅",
       "Кажется кто-то измазал пастой тренера Машу...и да, это были Вы 😏",
       "Вас хотели измазать пастой, но вы оказались быстрее!",
-      "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали ее пастой 😆"
+      "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали её пастой 😆"
     ];
 
-    const emojis = ["😁", "😏", "😜", "🙈", "🎉", "💦"];
+    let clickCount = 0;
+    const toothpaste = document.getElementById("toothpaste");
+    const video = document.getElementById("paste-video");
+    const messageDiv = document.getElementById("message");
+    const clearBtn = document.getElementById("clear-btn");
 
-    tubeImg.addEventListener("click", () => {
+    toothpaste.addEventListener("click", () => {
       clickCount++;
-      tubeImg.classList.add("shake");
-      setTimeout(() => tubeImg.classList.remove("shake"), 300);
 
-      if (clickCount >= 4 && Math.random() < 0.5) {
-        playExplosion();
+      const randomChance = Math.random();
+      if (clickCount >= 4 && randomChance > 0.5) {
+        playVideo();
       } else {
-        if (Math.random() < 0.5) {
-          const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-          messageBox.textContent = randomMsg;
-        } else {
-          spawnEmoji();
-          messageBox.textContent = "";
-        }
+        const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+        messageDiv.textContent = randomMsg;
       }
     });
 
-    function spawnEmoji() {
-      const emoji = document.createElement("div");
-      emoji.className = "emoji";
-      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      emoji.style.left = Math.random() * 80 + 10 + "vw";
-      emoji.style.bottom = "50px";
-      document.body.appendChild(emoji);
-      setTimeout(() => emoji.remove(), 1500);
-    }
+    function playVideo() {
+      toothpaste.style.display = "none";
+      video.style.display = "block";
+      messageDiv.textContent = "";
 
-    function playExplosion() {
-      const video = document.createElement("video");
-      video.src = "toothpaste.mp4";
-      video.autoplay = true;
-      video.playsInline = true;
+      video.currentTime = 0;
+      video.play();
+
       video.onended = () => {
         showPasteOverlay();
-        messageBox.textContent =
-          "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈";
-        clickCount = 0;
-        container.innerHTML = "";
-        container.appendChild(tubeImg);
       };
-
-      container.innerHTML = "";
-      container.appendChild(video);
-      messageBox.textContent = "";
     }
 
     function showPasteOverlay() {
       const overlay = document.createElement("div");
       overlay.id = "paste-overlay";
+      overlay.style.background = "#eecbcb";
+      overlay.style.opacity = "0";
+
       document.body.appendChild(overlay);
-      setTimeout(() => overlay.remove(), 2000); // паста исчезает через 2 сек
+
+      setTimeout(() => {
+        overlay.style.opacity = "1";
+        overlay.style.backgroundImage = `
+          radial-gradient(circle at 20% 30%, rgba(255,255,255,0.4) 5%, transparent 30%),
+          radial-gradient(circle at 60% 70%, rgba(255,255,255,0.3) 5%, transparent 30%),
+          radial-gradient(circle at 80% 40%, rgba(255,255,255,0.3) 5%, transparent 30%)
+        `;
+        overlay.style.backgroundSize = "200% 200%";
+        overlay.style.animation = "slideDown 8s infinite alternate ease-in-out";
+      }, 50);
+
+      clearBtn.style.display = "block";
     }
+
+    clearBtn.addEventListener("click", () => {
+      const overlay = document.getElementById("paste-overlay");
+      if (overlay) overlay.remove();
+
+      toothpaste.style.display = "block";
+      video.style.display = "none";
+      clearBtn.style.display = "none";
+      messageDiv.textContent = "";
+      clickCount = 0;
+    });
+
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes slideDown {
+        0% { background-position: 50% 0%; }
+        100% { background-position: 50% 30%; }
+      }
+    `;
+    document.head.appendChild(style);
   </script>
 </body>
 </html>
