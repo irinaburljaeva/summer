@@ -10,7 +10,7 @@
       text-align: center;
       margin: 0;
       padding: 2rem;
-      background: #f7f7f7;
+      background: #ffffff; /* Белый фон */
     }
     .container {
       max-width: 400px;
@@ -41,6 +41,7 @@
       display: none;
       width: 250px;
       margin-top: 1rem;
+      background: #ffffff; /* Чтобы у видео не было серого фона */
     }
     #paste-overlay {
       position: fixed;
@@ -50,7 +51,7 @@
       height: 100%;
       z-index: 10;
       opacity: 0;
-      background: #eecbcb;
+      background: #f7dede; /* Цвет размазанной пасты */
       transition: opacity 1s ease;
     }
     #clear-btn {
@@ -73,7 +74,7 @@
       bottom: 70px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       padding: 10px 15px;
       border-radius: 8px;
       font-size: 16px;
@@ -88,7 +89,7 @@
       margin-right: 8px;
       width: 14px;
       height: 14px;
-      background: #eecbcb;
+      background: #f7dede;
       border-radius: 50%;
       animation: popUp 0.4s ease forwards;
     }
@@ -130,7 +131,7 @@
 
     toothpaste.addEventListener("click", () => {
       if (instruction.style.display !== "none") {
-        instruction.style.display = "none"; // скрываем подсказку после первого клика
+        instruction.style.display = "none"; 
       }
 
       clickCount++;
@@ -170,9 +171,8 @@
     function showPasteOverlay() {
       const overlay = document.createElement("div");
       overlay.id = "paste-overlay";
-      overlay.style.background = "#eecbcb";
+      overlay.style.background = "#f7dede";
       overlay.style.opacity = "0";
-
       document.body.appendChild(overlay);
 
       setTimeout(() => {
@@ -186,13 +186,8 @@
         overlay.style.animation = "slideDown 8s infinite alternate ease-in-out";
       }, 50);
 
-      setTimeout(() => {
-        finalText.style.display = "block";
-      }, 800);
-
-      setTimeout(() => {
-        clearBtn.style.display = "block";
-      }, 1800);
+      setTimeout(() => { finalText.style.display = "block"; }, 800);
+      setTimeout(() => { clearBtn.style.display = "block"; }, 1800);
     }
 
     clearBtn.addEventListener("click", () => {
@@ -205,7 +200,7 @@
       finalText.style.display = "none";
       messageDiv.textContent = "";
       clickCount = 0;
-      instruction.style.display = "block"; // возвращаем подсказку
+      instruction.style.display = "block";
     });
 
     const style = document.createElement("style");
