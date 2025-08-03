@@ -7,16 +7,10 @@
   <style>
     img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; background: white; font-family: Arial, sans-serif; text-align: center; }
-    #game-container {
-      position: relative; height: 100vh;
-      display: flex; flex-direction: column;
-      justify-content: center; align-items: center;
-    }
+    #game-container { position: relative; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     #score-container, #record-container {
-      position: absolute;
-      padding: 10px 15px; border-radius: 10px;
-      background: #CF2C02; color: white;
-      font-weight: bold; font-size: 16px;
+      position: absolute; padding: 10px 15px; border-radius: 10px;
+      background: #CF2C02; color: #fff; font-weight: bold; font-size: 16px;
       display: none;
     }
     #score-container { top: 20px; right: 20px; }
@@ -26,21 +20,19 @@
       display: flex; gap: 4px; font-size: 18px;
       pointer-events: none;
     }
-    #toothpaste-img, #toothpaste-video {
-      width: 200px; cursor: pointer; user-select: none;
-    }
+    #toothpaste-img, #toothpaste-video { width: 200px; cursor: pointer; user-select: none; }
     .shake { animation: shake 0.3s; }
     @keyframes shake {
-      0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}
-      50%{transform:translateX(4px)}75%{transform:translateX(-4px)}
+      0%,100% { transform: translateX(0) }
+      25% { transform: translateX(-4px) }
+      50% { transform: translateX(4px) }
+      75% { transform: translateX(-4px) }
     }
     #message {
       margin-top: 20px; font-size: 20px; min-height: 1.2em;
       opacity: 0; display: inline-block; font-weight: bold;
     }
-    #message.show {
-      animation: popText 0.4s ease-out both;
-    }
+    #message.show { animation: popText 0.4s ease-out both; }
     @keyframes popText {
       0%   { opacity: 0; transform: scale(0.6); }
       60%  { opacity: 1; transform: scale(1.1); }
@@ -49,34 +41,27 @@
     #achieve-popup {
       position: fixed; bottom: 20px; left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: #CF2C02; color: #fff; padding: 10px 16px;
-      border-radius: 8px; font-size: 16px; opacity: 0;
-      z-index: 20; transition: opacity .3s, transform .3s;
-      pointer-events: none;
+      background: #CF2C02; color: #fff; padding: 10px 16px; border-radius: 8px;
+      font-size: 16px; opacity: 0; z-index: 20;
+      transition: opacity .3s, transform .3s; pointer-events: none;
     }
-    #achieve-popup.show {
-      opacity: 1; transform: translateX(-50%) translateY(0);
-    }
+    #achieve-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     #pink-overlay {
-      position: fixed; top:0; left:0; width:100%; height:100%;
-      background: #FFD6E7; opacity:0; pointer-events:none; z-index:10;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #FFD6E7; opacity: 0; pointer-events: none; z-index: 10;
     }
-    #pink-overlay.show {
-      animation: fadeInOverlay 1.2s forwards;
-    }
+    #pink-overlay.show { animation: fadeInOverlay 1.2s forwards; }
     @keyframes fadeInOverlay { from{opacity:0} to{opacity:1} }
     #final-text {
       position: fixed; top:50%; left:50%;
       transform: translate(-50%,-50%);
-      background: white; padding: 16px 24px;
-      border-radius: 12px; font-size:20px; font-weight:bold;
-      display: none; z-index:11;
+      background: #fff; padding: 16px 24px; border-radius: 12px;
+      font-size: 20px; font-weight: bold; display: none; z-index: 11;
       animation: showFinal 0.5s forwards 0.3s;
     }
     @keyframes showFinal { from{opacity:0} to{opacity:1} }
     #reset-btn {
-      position: fixed; top:70%; left:50%;
-      transform: translateX(-50%);
+      position: fixed; top:70%; left:50%; transform: translateX(-50%);
       padding:10px 20px; background:#CF2C02; color:#fff;
       border:none; border-radius:8px; font-size:16px;
       cursor:pointer; display:none; z-index:12;
@@ -86,12 +71,11 @@
       transform: translate(-50%,-50%);
       font-size:24px; font-weight:bold; background:#ffeaa7;
       padding:10px 20px; border-radius:12px;
-      display:none; animation: fadeInBonus .5s forwards;
-      z-index:12;
+      display:none; animation: fadeInBonus .5s forwards; z-index:12;
     }
     @keyframes fadeInBonus {
-      from{opacity:0;transform:translate(-50%,-30px) scale(0.8)}
-      to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+      from{opacity:0; transform:translate(-50%,-30px) scale(0.8)}
+      to{opacity:1; transform:translate(-50%,-50%) scale(1)}
     }
   </style>
 </head>
@@ -167,7 +151,6 @@
 
     function updateScore() {
       scoreBox.textContent = `Проказы с пастой: ${score}`;
-      // рекорд подсчитываем в любой момент, но показываем сразу со 2-го раунда
       if (!firstRound && score > record) {
         record = score;
         recBox.textContent = `Рекорд: ${record}`;
@@ -195,8 +178,7 @@
         setTimeout(()=>{
           finalText.style.display = "block";
           resetBtn.style.display = "block";
-          // показываем рекордный счётник
-          recBox.style.display = "block";
+          recBox.style.display = firstRound ? "none" : "block";
         }, 500);
       };
     }
@@ -215,7 +197,7 @@
             extra += b.add;
           } else if (b.reduce) {
             explosionChance = Math.max(0.05, explosionChance - b.reduce);
-            protectedClicks = 5; // следующие 5 кликов без взрыва
+            protectedClicks = 5;  // следующие 5 кликов без взрыва
           }
         }
       });
@@ -234,17 +216,14 @@
 
       clickCount++;
 
-      // если есть защищённые клики — просто начисляем
       if (protectedClicks > 0) {
         protectedClicks--;
       }
-      // иначе проверяем взрыв
       else if (clickCount >= 3 && Math.random() < explosionChance) {
         playExplosion();
         return;
       }
 
-      // обычный клик — начисляем очки + бонусы
       let pts = superClick ? 3 : 1;
       superClick = false;
       pts += handleBonus();
@@ -256,7 +235,8 @@
     });
 
     resetBtn.addEventListener("click", () => {
-      // при первом сбросе фиксируем рекорд
+      // Сразу переводим into второй раунд
+      const wasFirst = firstRound;
       if (firstRound) {
         record = score;
         recBox.textContent = `Рекорд: ${record}`;
@@ -266,16 +246,18 @@
       resetBtn.style.display = "none";
       vid.style.display = "none";
       img.style.display = "block";
-      img.src = firstRound ? "intro.jpg" : "toothpaste.png";
+      firstRound = false;            // <— теперь ставим флаг до смены картинки
+      img.src = wasFirst ? "intro.jpg" : "toothpaste.png";
+      // но если это был первый сброс, после него сразу покажем toothpaste
+      if (!wasFirst) img.src = "toothpaste.png";
+
       msg.textContent = "";
       clickCount = 0;
       explosionChance = 0.05;
       score = 0;
       scoreBox.textContent = "Проказы с пастой: 0";
       scoreBox.style.display = "block";
-      // **Показываем рекорд сразу при старте 2-го раунда**
-      recBox.style.display = "block";
-      firstRound = false;
+      recBox.style.display = "block"; // рекорд виден со 2-го раунда
     });
   </script>
 </body>
