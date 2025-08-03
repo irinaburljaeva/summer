@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Игра с пастой</title>
   <style>
-    /* Убираем синее выделение */
+    /* Отключаем синее выделение при клике */
     img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; outline: none; }
 
     body {
@@ -22,7 +22,8 @@
       justify-content: center;
       align-items: center;
     }
-    #score-container, #record-container {
+    #score-container,
+    #record-container {
       position: absolute;
       padding: 8px 12px;
       border-radius: 8px;
@@ -35,18 +36,28 @@
     #score-container { top: 16px; right: 16px; }
     #record-container { top: 16px; left: 16px; }
 
-    /* Панель для иконок ачивок */
+    /* Панель достижений */
     #achieve-bar {
       position: absolute;
       top: 40px;
       left: 16px;
       display: flex;
+      align-items: center;
       gap: 6px;
-      font-size: 20px;
+      font-size: 18px;
+      color: #333;
       pointer-events: none;
     }
+    #achieve-bar .label {
+      font-weight: bold;
+      margin-right: 6px;
+    }
+    #achieve-bar span {
+      cursor: default;
+    }
 
-    #toothpaste-img, #toothpaste-video {
+    #toothpaste-img,
+    #toothpaste-video {
       width: 200px;
       cursor: pointer;
     }
@@ -130,8 +141,7 @@
       animation: fadeInOverlay 1.2s forwards;
     }
     @keyframes fadeInOverlay {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+      from { opacity: 0; } to { opacity: 1; }
     }
 
     #final-text {
@@ -148,8 +158,7 @@
       animation: showFinal 0.5s forwards 0.3s;
     }
     @keyframes showFinal {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+      from { opacity: 0; } to { opacity: 1; }
     }
 
     #reset-btn {
@@ -172,7 +181,12 @@
   <div id="game-container">
     <div id="score-container">Проказы с пастой: 0</div>
     <div id="record-container">Рекорд: 0</div>
-    <div id="achieve-bar"></div>
+
+    <!-- Панель с надписью и иконками полученных ачивок -->
+    <div id="achieve-bar">
+      <div class="label">Награды:</div>
+    </div>
+
     <img id="toothpaste-img" src="intro.jpg" alt="Intro" draggable="false" />
     <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;"></video>
     <div id="message"></div>
@@ -206,8 +220,8 @@
         explosionChance  = 0.05,
         lastMsg          = "";
 
-    // тексты для обычных кликов
     const texts = [
+      // ... ваши тексты ...
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
       "Шалость удалась! Вы измазали пастой вашего соседа 😁",
       "Вы измазали пастой куратора Сашу 😅",
@@ -222,7 +236,6 @@
       "Клавиатура в пасте! 💻"
     ];
     const emojis = ["😂","🤣","🙈","😏","🥳"];
-    // тексты для финального взрыва
     const explosionTexts = [
       "Ахаха! Тюбик взорвался и теперь ты вся в пасте! 🙈",
       "Упс... Тюбик лопнул и паста разлетелась по тебе! 😢",
@@ -230,23 +243,23 @@
       "Слишком усердно… теперь ты в пасте по локоть! 😭",
       "Тюбик решил пошалить и промазал тебя! 😞"
     ];
-    // бонусы
     const bonusesArr = [
       { chance:0.15, text:"Бонус! +2 проказы 🎁", add:2 },
       { chance:0.10, text:"Супер-клик! Следующий +3 🔥", superClick:true }
     ];
     let superClick = false;
 
-    // ачивки с эмодзи и условиями
+    // список ачивок
     const achievements = [
-      { id:'lightMischief', name:'Лёгкая пакость', emoji:'🪥', condition: s=>s>=5,               unlocked:false },
-      { id:'failDay',       name:'Неудачный день', emoji:'💥', condition: ()=>explosionCount>=5, unlocked:false },
-      { id:'speedMischief', name:'Молниеносная пакость', emoji:'⚡', condition: ()=>challengeSuccess, unlocked:false },
-      { id:'mainMischief',  name:'Главный проказник', emoji:'🏅', condition: s=>s>=10,            unlocked:false },
-      { id:'campMischief',  name:'Главный пакостник лагеря', emoji:'👑', condition: s=>s>=20,       unlocked:false },
-      { id:'collector',     name:'Коллекционер', emoji:'💎', condition: ()=>achievements
-                                                           .filter(a=>a.id!=='collector')
-                                                           .every(a=>a.unlocked), unlocked:false }
+      { id:'lightMischief', name:'Лёгкая пакость', emoji:'🪥',         condition: s=>s>=5,               unlocked:false },
+      { id:'failDay',       name:'Неудачный день', emoji:'💥',         condition: ()=>explosionCount>=5, unlocked:false },
+      { id:'speedMischief', name:'Молниеносная пакость', emoji:'⚡',   condition: ()=>challengeSuccess,   unlocked:false },
+      { id:'mainMischief',  name:'Главный проказник', emoji:'🏅',       condition: s=>s>=10,              unlocked:false },
+      { id:'campMischief',  name:'Главный пакостник лагеря', emoji:'👑', condition: s=>s>=20,              unlocked:false },
+      { id:'collector',     name:'Коллекционер', emoji:'💎',            condition: ()=>achievements
+                                                               .filter(a=>a.id!=='collector')
+                                                               .every(a=>a.unlocked),
+                                                            unlocked:false }
     ];
 
     function randomMsg() {
@@ -259,32 +272,38 @@
       lastMsg = m;
       return m;
     }
+
     function showMessage(text) {
       msg.textContent = text;
       msg.classList.remove("show");
       void msg.offsetWidth;
       msg.classList.add("show");
     }
+
     function showAchievement(name) {
       popup.textContent = `🏅 ${name} получена!`;
       popup.classList.add("show");
       setTimeout(()=> popup.classList.remove("show"), 1800);
     }
-    function appendAchievementIcon(emoji) {
+
+    function appendAchievementIcon(emoji, name) {
       const span = document.createElement('span');
       span.textContent = emoji;
+      span.title = name;           // тултип с названием
       bar.append(span);
     }
+
     function checkAchievements() {
       achievements.forEach(a => {
         if (!a.unlocked && a.condition(score)) {
           a.unlocked = true;
           showAchievement(a.name);
-          appendAchievementIcon(a.emoji);
+          appendAchievementIcon(a.emoji, a.name);
         }
       });
     }
-    function updateScore() {
+
+    function updateScore() {  
       scoreBox.textContent = `Проказы с пастой: ${score}`;
       if (!firstRound && score > record) {
         record = score;
@@ -307,7 +326,7 @@
       clicks++;
 
       if (clicks>=3 && Math.random()<explosionChance) {
-        // взрыв
+        // ВЗРЫВ
         explosionCount++;
         checkAchievements();
 
@@ -321,7 +340,7 @@
 
         vid.onended = ()=>{
           overlay.classList.add("show");
-          // случайный текст взрыва
+          // рандомный текст взрыва
           finalText.textContent = explosionTexts[
             Math.floor(Math.random()*explosionTexts.length)
           ];
@@ -377,4 +396,3 @@
   </script>
 </body>
 </html>
-```0
