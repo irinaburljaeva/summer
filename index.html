@@ -126,7 +126,7 @@
   <div class="record" id="record">Рекорд: 0</div>
 
   <div class="tube-container">
-    <img id="toothpasteImage" src="toothpaste.png" alt="Тюбик пасты">
+    <img id="toothpasteImage" src="intro.jpg" alt="Начало">
     <video id="toothpasteVideo" src="toothpaste.mp4"></video>
   </div>
 
@@ -167,6 +167,7 @@
     let firstRound = true;
     let canClick = true;
     let lastMessage = "";
+    let gameStarted = false;
 
     function getRandomMessage() {
       let msg;
@@ -179,6 +180,13 @@
 
     function handleClick() {
       if (!canClick) return;
+
+      // Первый клик меняет intro на тюбик
+      if (!gameStarted) {
+        toothpasteImage.src = "toothpaste.png";
+        gameStarted = true;
+        return;
+      }
 
       toothpasteImage.classList.add("shake");
       setTimeout(() => toothpasteImage.classList.remove("shake"), 300);
@@ -214,7 +222,7 @@
 
       setTimeout(() => {
         pinkOverlay.style.opacity = 1;
-      }, toothpasteVideo.duration * 600); // розовый появляется ближе к концу видео
+      }, toothpasteVideo.duration * 600);
 
       setTimeout(() => {
         overlayContent.classList.add("show");
