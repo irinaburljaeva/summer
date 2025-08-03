@@ -65,6 +65,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      display: none; /* кнопка скрыта по умолчанию */
     }
 
     .shake {
@@ -115,7 +116,7 @@
       if (introShown) {
         toothpasteImg.src = "toothpaste.jpg";
         introShown = false;
-        showRandomMessage();
+        showRandomMessage(false);
         return;
       }
 
@@ -126,14 +127,23 @@
       if (clickCount >= 4 && Math.random() < 0.6) {
         startExplosion();
       } else {
-        showRandomMessage();
+        showRandomMessage(false);
       }
     });
 
-    function showRandomMessage() {
+    function showRandomMessage(withButton) {
       const msg = messages[Math.floor(Math.random() * messages.length)];
       finalText.textContent = msg;
       finalContainer.style.display = "block";
+
+      if (!withButton) {
+        clearBtn.style.display = "none";
+        setTimeout(() => {
+          finalContainer.style.display = "none";
+        }, 2500); // текст исчезнет через 2.5 секунды
+      } else {
+        clearBtn.style.display = "block";
+      }
     }
 
     function startExplosion() {
@@ -149,6 +159,7 @@
         finalText.textContent =
           "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈";
         finalContainer.style.display = "block";
+        clearBtn.style.display = "block";
       };
     }
 
@@ -159,6 +170,7 @@
         toothpasteImg.style.display = "block";
         clickCount = 0;
         finalContainer.style.display = "none";
+        clearBtn.style.display = "none";
       }, 600);
     });
   </script>
