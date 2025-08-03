@@ -21,12 +21,13 @@
     }
     #score-container, #record-container {
       position: absolute;
-      background: #fff3f3;
       padding: 10px 15px;
       border-radius: 10px;
       font-weight: bold;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background: #CF2C02;
+      color: white;
       display: none;
+      font-size: 16px;
     }
     #score-container { top: 20px; right: 20px; }
     #record-container { top: 20px; left: 20px; }
@@ -34,6 +35,13 @@
       margin-top: 20px;
       font-size: 20px;
       min-height: 40px;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    #message.show {
+      opacity: 1;
+      transform: scale(1);
     }
     #bonus {
       position: fixed;
@@ -89,6 +97,11 @@
       border-radius: 12px;
       display: none;
       z-index: 11;
+      opacity: 0;
+      animation: showText 0.5s forwards 0.3s;
+    }
+    @keyframes showText {
+      to { opacity: 1; }
     }
     #reset-btn {
       margin-top: 20px;
@@ -118,7 +131,7 @@
     <button id="reset-btn">Стереть пасту</button>
   </div>
   <div id="pink-overlay"></div>
-  <div id="final-text">Ой! Кто-то переусердствовал! 🙈</div>
+  <div id="final-text">Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈</div>
   <div id="bonus"></div>
 
   <script>
@@ -165,7 +178,7 @@
     function updateScore() {
       scoreContainer.textContent = `Проказы с пастой: ${score}`;
       if (!firstRound && score % 5 === 0 && score !== 0) {
-        record = score;
+        record = Math.max(record, score);
         recordContainer.textContent = `Рекорд: ${record}`;
         if (!confettiShown) { launchConfetti(); confettiShown = true; }
       }
@@ -218,7 +231,11 @@
 
         score += points;
         updateScore();
-        message.textContent = randomMessage();
+        const newMsg = randomMessage();
+        message.textContent = newMsg;
+        message.classList.remove("show");
+        setTimeout(()=>message.classList.add("show"),10);
+
         explosionChance = Math.min(0.5, explosionChance + 0.05);
       }
     });
@@ -230,7 +247,7 @@
       toothpasteVideo.play();
       message.textContent = "";
       scoreContainer.style.display = "none";
-      recordContainer.style.display = "none";
+      recordContainer.style.display = firstRound ? "none" : "block";
 
       toothpasteVideo.onended = () => {
         overlay.classList.add("show");
@@ -250,8 +267,8 @@
       toothpasteImg.src = "intro.jpg";
       message.textContent = "";
       clickCount = 0;
-      score = 0;
       explosionChance = 0.05;
+      score = 0;
       scoreContainer.textContent = "Проказы с пастой: 0";
       if (!firstRound) recordContainer.style.display = "block";
       confettiShown = false;
