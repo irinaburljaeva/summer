@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Интенсив "Летний лагерь"</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #fffaf0;
+      color: #333;
+      overflow-x: hidden;
+    }
+    header {
+      background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('campfire-bg.jpg') center/cover;
+      color: white;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+    }
+    .timer {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      background: rgba(0,0,0,0.5);
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+    }
+    .campfire {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      background: url('campfire.gif') center/contain no-repeat;
+    }
+    section {
+      padding: 3rem 1rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .card {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    }
+    .card img {
+      max-width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+    .program {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      padding-bottom: 1rem;
+    }
+    .day {
+      min-width: 200px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+      transition: transform 0.3s;
+    }
+    .day:hover {
+      transform: scale(1.05);
+    }
+    .cta {
+      text-align: center;
+      margin-top: 3rem;
+      position: relative;
+    }
+    .cta button {
+      background: #CF2C02;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .cta button:hover {
+      transform: scale(1.05);
+      background: #e64500;
+    }
+    .lights {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+    }
+    .light {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: yellow;
+      animation: blink 1.5s infinite;
+    }
+    .light:nth-child(2) { animation-delay: 0.3s; }
+    .light:nth-child(3) { animation-delay: 0.6s; }
+    .light:nth-child(4) { animation-delay: 0.9s; }@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.leaf {
+  position: fixed;
+  top: -40px;
+  font-size: 20px;
+  opacity: 0.9;
+  animation: fall 6s linear infinite;
+}
+
+@keyframes fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Интенсив "Летний лагерь"</h1>
+    <div class="timer" id="countdown"></div>
+    <div class="campfire"></div>
+  </header>  <section>
+    <h2>Что вас ждёт?</h2>
+    <div class="features">
+      <div class="card">
+        <img src="training.jpg" alt="Тренировки">
+        <p>7 дней шагательных тренировок и зарядок</p>
+      </div>
+      <div class="card">
+        <img src="fire.jpg" alt="Костёр">
+        <p>Вечерние активности и прощальный костёр</p>
+      </div>
+      <div class="card">
+        <img src="menu.jpg" alt="Меню">
+        <p>Лагерное меню и забота о себе</p>
+      </div>
+      <div class="card">
+        <img src="webinar.jpg" alt="Вебинары">
+        <p>Вебинары с психологом и художником</p>
+      </div>
+    </div>
+  </section>  <section>
+    <h2>Программа по дням</h2>
+    <div class="program">
+      <div class="day">
+        <h3>День 1</h3>
+        <p>Зарядка с Димой</p>
+        <p>Шагательная дискотека</p>
+        <p>2 задания заботы о себе</p>
+      </div>
+      <div class="day">
+        <h3>День 2</h3>
+        <p>Зарядка</p>
+        <p>Тренировка</p>
+        <p>Забота о себе</p>
+      </div>
+    </div>
+  </section>  <section class="cta">
+    <div class="lights">
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+    </div>
+    <h2>Запишись в лагерь уже сегодня!</h2>
+    <button>Купить участие</button>
+  </section>  <script>
+    const countdown = document.getElementById('countdown');
+    const eventDate = new Date('August 13, 2025 00:00:00').getTime();
+
+    setInterval(() => {
+      const now = new Date().getTime();
+      const distance = eventDate - now;
+
+      if (distance < 0) {
+        countdown.textContent = "Интенсив уже начался!";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      countdown.textContent = `До старта: ${days} дн ${hours} ч`;
+    }, 1000);
+
+    function createLeaf() {
+      const leaf = document.createElement('div');
+      leaf.className = 'leaf';
+      leaf.textContent = '🍂';
+      leaf.style.left = Math.random() * 100 + 'vw';
+      leaf.style.fontSize = 16 + Math.random() * 10 + 'px';
+      leaf.style.animationDuration = 4 + Math.random() * 4 + 's';
+      document.body.appendChild(leaf);
+      setTimeout(() => leaf.remove(), 6000);
+    }
+
+    setInterval(createLeaf, 800);
+  </script></body>
+</html>
