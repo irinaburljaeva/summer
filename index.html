@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Выдавливание пасты</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Весёлый тюбик пасты</title>
   <style>
     body {
-      background: #ffffff;
+      background: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
+      font-family: Arial, sans-serif;
     }
     #toothpaste-container {
       position: relative;
@@ -24,60 +25,75 @@
       width: 100%;
       display: block;
     }
-    .splat {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.8;
-      background-color: #f8c7d4;
-      animation: splat 0.8s ease-out forwards;
+    .shake {
+      animation: shake 0.3s;
     }
-    @keyframes splat {
-      0% { transform: scale(0); opacity: 1; }
-      100% { transform: scale(1); opacity: 0; }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: center;
+      max-width: 300px;
     }
   </style>
 </head>
 <body>
-
   <div id="toothpaste-container">
-    <img id="tube" src="toothpaste.png" alt="Тюбик пасты">
+    <img id="tube" src="toothpaste.png" alt="Тюбик пасты" />
   </div>
+  <div id="message"></div>
 
   <script>
-    const container = document.getElementById('toothpaste-container');
-    const tubeImg = document.getElementById('tube');
+    const container = document.getElementById("toothpaste-container");
+    const tubeImg = document.getElementById("tube");
+    const messageBox = document.getElementById("message");
+    let clickCount = 0;
 
-    tubeImg.addEventListener('click', () => {
-      // Заменяем изображение на видео
-      const video = document.createElement('video');
-      video.src = 'toothpaste.mp4';
-      video.autoplay = true;
-      video.playsInline = true;
-      video.onended = () => showSplats();
-      container.innerHTML = '';
-      container.appendChild(video);
+    const messages = [
+      "Пока никто не видел вы намазали пастой тренера Настю 😉",
+      "Шалость удалась! Вы измазали пастой вашего соседа 😁",
+      "Вы измазали пастой куратора Сашу 😅",
+      "Кажется кто-то измазал пастой тренера Машу...и да, это были Вы 😏",
+      "Вас хотели измазать пастой, но вы оказались быстрее!",
+      "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали ее пастой 😆"
+    ];
+
+    tubeImg.addEventListener("click", () => {
+      clickCount++;
+      tubeImg.classList.add("shake");
+      setTimeout(() => tubeImg.classList.remove("shake"), 300);
+
+      if (clickCount >= 3) {
+        playExplosion();
+      } else {
+        const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+        messageBox.textContent = randomMsg;
+      }
     });
 
-    function showSplats() {
-      for (let i = 0; i < 20; i++) {
-        const splat = document.createElement('div');
-        splat.className = 'splat';
-        splat.style.width = splat.style.height = `${20 + Math.random() * 40}px`;
-        splat.style.left = `${Math.random() * 200}px`;
-        splat.style.top = `${Math.random() * 200}px`;
-        container.appendChild(splat);
-        setTimeout(() => splat.remove(), 1000);
-      }
-      setTimeout(() => {
-        alert(`Вы намазали пастой ${getRandomName()}! 😂`);
-      }, 500);
-    }
+    function playExplosion() {
+      const video = document.createElement("video");
+      video.src = "toothpaste.mp4";
+      video.autoplay = true;
+      video.playsInline = true;
+      video.onended = () => {
+        messageBox.textContent =
+          "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈";
+        clickCount = 0; // сбрасываем счётчик
+        container.innerHTML = ""; // убираем видео
+        container.appendChild(tubeImg); // возвращаем тюбик
+      };
 
-    function getRandomName() {
-      const names = ['подругу', 'друга', 'соседа', 'тренера', 'брата', 'сестру'];
-      return names[Math.floor(Math.random() * names.length)];
+      container.innerHTML = "";
+      container.appendChild(video);
+      messageBox.textContent = "";
     }
   </script>
-
 </body>
 </html>
