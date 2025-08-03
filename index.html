@@ -42,7 +42,7 @@
     .tube-container {
       display: flex;
       justify-content: center;
-      margin-top: 80px;
+      margin-top: 100px;
     }
 
     #toothpasteImage,
@@ -181,71 +181,10 @@
     function handleClick() {
       if (!canClick) return;
 
-      // Первый клик меняет intro на тюбик
       if (!gameStarted) {
         toothpasteImage.src = "toothpaste.png";
         gameStarted = true;
         return;
       }
 
-      toothpasteImage.classList.add("shake");
-      setTimeout(() => toothpasteImage.classList.remove("shake"), 300);
-
-      if (Math.random() < 0.25 && !firstRound) {
-        triggerExplosion();
-      } else {
-        score++;
-        updateCounter();
-        if (Math.random() < 0.3) {
-          message.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        } else {
-          message.textContent = getRandomMessage();
-        }
-      }
-    }
-
-    function updateCounter() {
-      counter.style.display = "block";
-      counter.textContent = `Проказы с пастой: ${score}`;
-      if (!firstRound && score > highScore) {
-        highScore = score;
-        record.style.display = "block";
-        record.textContent = `Рекорд: ${highScore}`;
-      }
-    }
-
-    function triggerExplosion() {
-      canClick = false;
-      toothpasteImage.style.display = "none";
-      toothpasteVideo.style.display = "block";
-      toothpasteVideo.play();
-
-      setTimeout(() => {
-        pinkOverlay.style.opacity = 1;
-      }, toothpasteVideo.duration * 600);
-
-      setTimeout(() => {
-        overlayContent.classList.add("show");
-      }, toothpasteVideo.duration * 1000);
-
-      toothpasteVideo.onended = () => {
-        toothpasteVideo.style.display = "none";
-      };
-    }
-
-    resetButton.addEventListener("click", () => {
-      score = 0;
-      counter.textContent = `Проказы с пастой: 0`;
-      message.textContent = "";
-      pinkOverlay.style.opacity = 0;
-      overlayContent.classList.remove("show");
-      toothpasteImage.style.display = "block";
-      canClick = true;
-      firstRound = false;
-    });
-
-    toothpasteImage.addEventListener("click", handleClick);
-  </script>
-
-</body>
-</html>
+      toothpasteImage.classList.add("shake
