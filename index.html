@@ -35,21 +35,13 @@
       z-index: 3;
     }
 
-    #paste-small {
-      position: absolute;
-      display: none;
-      max-width: 180px;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
-    }
-
     #paste-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: url("paste.png") center/cover no-repeat white;
+      background: url("toothpaste.png") center/cover no-repeat white;
       opacity: 0;
       display: none;
       z-index: 5;
@@ -94,6 +86,18 @@
       50% { transform: translateX(5px); }
       75% { transform: translateX(-5px); }
     }
+
+    .emoji {
+      position: absolute;
+      font-size: 24px;
+      animation: floatUp 1.2s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -101,7 +105,6 @@
   <div id="wrapper">
     <img id="toothpaste-img" src="intro.jpg" alt="Зубная паста" />
     <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;" muted></video>
-    <img id="paste-small" src="paste.png" alt="Выдавленная паста" />
 
     <div id="final-container">
       <div id="final-text"></div>
@@ -114,7 +117,6 @@
   <script>
     const toothpasteImg = document.getElementById("toothpaste-img");
     const toothpasteVideo = document.getElementById("toothpaste-video");
-    const pasteSmall = document.getElementById("paste-small");
     const pasteOverlay = document.getElementById("paste-overlay");
     const finalContainer = document.getElementById("final-container");
     const finalText = document.getElementById("final-text");
@@ -132,11 +134,13 @@
       "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали её пастой 😆"
     ];
 
+    const emojis = ["💦", "✨", "😁", "😆", "😏", "😉"];
+
     toothpasteImg.addEventListener("click", () => {
       if (introShown) {
         toothpasteImg.src = "toothpaste.png";
         introShown = false;
-        showRandomMessage(false, true); // показать первый текст сразу
+        showRandomMessage(false, true);
         return;
       }
 
@@ -144,7 +148,7 @@
       toothpasteImg.classList.add("shake");
       setTimeout(() => toothpasteImg.classList.remove("shake"), 400);
 
-      showPasteBelow();
+      createEmojis(toothpasteImg); // Добавляем эмодзи при клике
 
       if (clickCount >= 4 && Math.random() < 0.6) {
         startExplosion();
@@ -153,15 +157,17 @@
       }
     });
 
-    function showPasteBelow() {
-      const imgRect = toothpasteImg.getBoundingClientRect();
-      const randomX = Math.random() * 60 - 30;
-      const randomY = Math.random() * 20 + 50;
-
-      pasteSmall.style.left = `${imgRect.width / 2 + randomX}px`;
-      pasteSmall.style.top = `${imgRect.height + randomY}px`;
-      pasteSmall.style.display = "block";
-      setTimeout(() => pasteSmall.style.opacity = "1", 50);
+    function createEmojis(element) {
+      const rect = element.getBoundingClientRect();
+      for (let i = 0; i < 4; i++) {
+        const emoji = document.createElement("div");
+        emoji.className = "emoji";
+        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        emoji.style.left = rect.left + rect.width / 2 + (Math.random() * 40 - 20) + "px";
+        emoji.style.top = rect.top + window.scrollY - 20 + "px";
+        document.body.appendChild(emoji);
+        setTimeout(() => emoji.remove(), 1200);
+      }
     }
 
     function showRandomMessage(final, firstClick = false) {
@@ -200,11 +206,11 @@
       setTimeout(() => {
         pasteOverlay.style.display = "none";
         toothpasteImg.style.display = "block";
+        toothpasteImg.src = "intro.jpg";
         clickCount = 0;
+        introShown = true;
         finalContainer.style.display = "none";
         clearBtn.style.display = "none";
-        pasteSmall.style.display = "none";
-        pasteSmall.style.opacity = "0";
       }, 600);
     });
   </script>
