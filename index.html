@@ -35,14 +35,34 @@
       margin-top: 20px;
       font-size: 20px;
       min-height: 40px;
+    }
+
+    /* 🔹 Анимация появления текста */
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+      60% { opacity: 1; transform: scale(1.1) translateY(-5px); }
+      100% { transform: scale(1) translateY(0); }
+    }
+    .animated-text {
+      animation: popIn 0.6s ease forwards;
+    }
+
+    /* 🔹 Анимация для смайликов */
+    @keyframes floatEmoji {
+      0% { opacity: 0; transform: translateY(20px) scale(0.5); }
+      50% { opacity: 1; transform: translateY(-10px) scale(1.2); }
+      100% { opacity: 0; transform: translateY(-50px) scale(1); }
+    }
+    .animated-emoji {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 32px;
       opacity: 0;
-      transform: scale(0.9);
-      transition: opacity 0.3s, transform 0.3s;
+      animation: floatEmoji 1.2s ease forwards;
     }
-    #message.show {
-      opacity: 1;
-      transform: scale(1);
-    }
+
     #bonus {
       position: fixed;
       top: 50%;
@@ -61,12 +81,14 @@
       from { opacity: 0; transform: translate(-50%, -30px); }
       to { opacity: 1; transform: translate(-50%, -50%); }
     }
+
     #toothpaste-img, #toothpaste-video {
       width: 200px;
       cursor: pointer;
       user-select: none;
     }
     #toothpaste-img:focus, #toothpaste-video:focus { outline: none; }
+
     .shake { animation: shake 0.3s; }
     @keyframes shake {
       0% { transform: translate(0,0) }
@@ -75,6 +97,7 @@
       75% { transform: translate(-3px,0) }
       100% { transform: translate(0,0) }
     }
+
     #pink-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -86,6 +109,7 @@
     }
     #pink-overlay.show { animation: fadeInOverlay 1.5s forwards; }
     @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+
     #final-text {
       position: fixed;
       top: 50%; left: 50%;
@@ -100,9 +124,8 @@
       opacity: 0;
       animation: showText 0.5s forwards 0.3s;
     }
-    @keyframes showText {
-      to { opacity: 1; }
-    }
+    @keyframes showText { to { opacity: 1; } }
+
     #reset-btn {
       margin-top: 20px;
       padding: 10px 20px;
@@ -231,10 +254,20 @@
 
         score += points;
         updateScore();
+
         const newMsg = randomMessage();
         message.textContent = newMsg;
-        message.classList.remove("show");
-        setTimeout(()=>message.classList.add("show"),10);
+        message.classList.remove("animated-text");
+        void message.offsetWidth;
+        message.classList.add("animated-text");
+
+        if (emojis.includes(newMsg)) {
+          const emojiEl = document.createElement("div");
+          emojiEl.textContent = newMsg;
+          emojiEl.className = "animated-emoji";
+          document.body.appendChild(emojiEl);
+          setTimeout(() => emojiEl.remove(), 1200);
+        }
 
         explosionChance = Math.min(0.5, explosionChance + 0.05);
       }
