@@ -27,7 +27,7 @@
       padding: 8px 12px;
       border-radius: 8px;
       background: #CF2C02;
-      color: white;
+      color: #fff;
       font-weight: bold;
       display: none;
       font-size: 14px;
@@ -51,21 +51,26 @@
       75%     { transform: translateX(-4px); }
     }
 
+    /* Анимация появления текста и эмодзи */
+    @keyframes popText {
+      0%   { opacity: 0; transform: scale(0.6); }
+      60%  { opacity: 1; transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
     #message {
       margin-top: 20px;
       font-size: 20px;
       min-height: 1.2em;
       opacity: 0;
       transform: scale(0.8);
-      transition: opacity 0.3s ease, transform 0.3s ease;
       display: inline-block;
       max-width: 80%;
       word-wrap: break-word;
       font-weight: bold;
     }
     #message.show {
-      opacity: 1;
-      transform: scale(1);
+      animation: popText 0.4s ease-out both;
     }
 
     #bonus {
@@ -130,7 +135,7 @@
       transform: translateX(-50%);
       padding: 10px 20px;
       background: #CF2C02;
-      color: white;
+      color: #fff;
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -210,9 +215,7 @@
 
     function updateScore() {
       scoreBox.textContent = `Проказы с пастой: ${score}`;
-      // Сохраняем рекорд сразу после первого круга
-      if (firstRound) return;
-      if (score > record) {
+      if (!firstRound && score > record) {
         record = score;
         recBox.textContent = `Рекорд: ${record}`;
       }
@@ -224,7 +227,6 @@
       img.classList.add("shake");
       setTimeout(()=> img.classList.remove("shake"), 300);
 
-      // intro только в первом раунде
       if (firstRound && img.src.includes("intro.jpg")) {
         img.src = "toothpaste.png";
         scoreBox.style.display = "block";
@@ -273,18 +275,16 @@
     });
 
     resetBtn.addEventListener("click", () => {
-      // Сохраняем рекорд с первого круга
       if (firstRound) {
         record = score;
         recBox.textContent = `Рекорд: ${record}`;
       }
-
       overlay.classList.remove("show");
       finalText.style.display = "none";
       resetBtn.style.display = "none";
       vid.style.display = "none";
       img.style.display = "block";
-      img.src = "toothpaste.png"; // дальше всегда эта картинка
+      img.src = "toothpaste.png";
       msg.textContent = "";
       clicks = 0;
       explosionChance = 0.05;
@@ -297,4 +297,3 @@
   </script>
 </body>
 </html>
-```0
