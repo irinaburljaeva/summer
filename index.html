@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Игра с пастой</title>
   <style>
-    /* Убираем синее выделение при клике на картинку */
+    /* Убираем синее выделение при клике */
     img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; outline: none; }
 
     body {
       margin: 0;
-      background: #ffffff;
+      background: white;
       font-family: Arial, sans-serif;
       text-align: center;
     }
@@ -27,7 +27,7 @@
       padding: 8px 12px;
       border-radius: 8px;
       background: #CF2C02;
-      color: #fff;
+      color: white;
       font-weight: bold;
       display: none;
       font-size: 14px;
@@ -58,9 +58,10 @@
       opacity: 0;
       transform: scale(0.8);
       transition: opacity 0.3s ease, transform 0.3s ease;
-      font-weight: bold;
+      display: inline-block;
       max-width: 80%;
       word-wrap: break-word;
+      font-weight: bold;
     }
     #message.show {
       opacity: 1;
@@ -107,7 +108,7 @@
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      background: #ffffff;
+      background: white;
       padding: 16px 24px;
       border-radius: 12px;
       font-size: 22px;
@@ -129,7 +130,7 @@
       transform: translateX(-50%);
       padding: 10px 20px;
       background: #CF2C02;
-      color: #fff;
+      color: white;
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -155,22 +156,22 @@
   <div id="bonus"></div>
 
   <script>
-    const img = document.getElementById("toothpaste-img"),
-          vid = document.getElementById("toothpaste-video"),
-          msg = document.getElementById("message"),
-          scoreBox = document.getElementById("score-container"),
-          recBox = document.getElementById("record-container"),
-          overlay = document.getElementById("pink-overlay"),
+    const img       = document.getElementById("toothpaste-img"),
+          vid       = document.getElementById("toothpaste-video"),
+          msg       = document.getElementById("message"),
+          scoreBox  = document.getElementById("score-container"),
+          recBox    = document.getElementById("record-container"),
+          overlay   = document.getElementById("pink-overlay"),
           finalText = document.getElementById("final-text"),
-          reset = document.getElementById("reset-btn"),
-          bonus = document.getElementById("bonus");
+          resetBtn  = document.getElementById("reset-btn"),
+          bonus     = document.getElementById("bonus");
 
-    let score = 0,
-        record = 0,
-        firstRound = true,
-        clicks = 0,
+    let score        = 0,
+        record       = 0,
+        firstRound   = true,
+        clicks       = 0,
         explosionChance = 0.05,
-        lastMsg = "";
+        lastMsg      = "";
 
     const texts = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
@@ -183,12 +184,11 @@
       "Вы измазали пастой зеркало в ванной"
     ];
     const emojis = ["😂","🤣","😜","🙈","🙃","😏"];
-    const bonuses = [
+    const bonusesArr = [
       { chance: 0.15, text: "Бонус! +2 проказы 🎁", add: 2 },
-      { chance: 0.1,  text: "Супер-клик! Следующий +3 🔥", super: true }
+      { chance: 0.10, text: "Супер-клик! Следующий +3 🔥", superClick: true }
     ];
-    let superClick = false,
-        confettiShown = false;
+    let superClick = false;
 
     function randomMsg() {
       let m;
@@ -204,19 +204,17 @@
     function showMessage(text) {
       msg.textContent = text;
       msg.classList.remove("show");
-      // force reflow
       void msg.offsetWidth;
       msg.classList.add("show");
     }
 
     function updateScore() {
       scoreBox.textContent = `Проказы с пастой: ${score}`;
-      // обновляем рекорд уже после первого круга
+      // Сохраняем рекорд сразу после первого круга
+      if (firstRound) return;
       if (score > record) {
         record = score;
-        if (!firstRound) {
-          recBox.textContent = `Рекорд: ${record}`;
-        }
+        recBox.textContent = `Рекорд: ${record}`;
       }
     }
 
@@ -224,9 +222,9 @@
 
     img.addEventListener("click", () => {
       img.classList.add("shake");
-      setTimeout(() => img.classList.remove("shake"), 300);
+      setTimeout(()=> img.classList.remove("shake"), 300);
 
-      // только в первом раунде показываем intro
+      // intro только в первом раунде
       if (firstRound && img.src.includes("intro.jpg")) {
         img.src = "toothpaste.png";
         scoreBox.style.display = "block";
@@ -243,47 +241,50 @@
         vid.play();
         msg.textContent = "";
         scoreBox.style.display = "none";
-        recBox.style.display = firstRound ? "none" : "block";
+        if (!firstRound) recBox.style.display = "block";
 
         vid.onended = () => {
           overlay.classList.add("show");
           setTimeout(()=>{
             finalText.style.display = "block";
-            reset.style.display = "block";
+            resetBtn.style.display = "block";
           }, 500);
         };
-
       } else {
-        // начисляем очки
+        // обычный клик
         let pts = superClick ? 3 : 1;
         superClick = false;
 
-        bonuses.forEach(b => {
+        bonusesArr.forEach(b => {
           if (Math.random() < b.chance) {
             bonus.textContent = b.text;
             bonus.style.display = "block";
             setTimeout(()=> bonus.style.display = "none", 1500);
-            if (b.super) superClick = true;
+            if (b.superClick) superClick = true;
             else pts += b.add;
           }
         });
 
         score += pts;
         updateScore();
-
         showMessage(randomMsg());
-
         explosionChance = Math.min(0.5, explosionChance + 0.05);
       }
     });
 
-    reset.addEventListener("click", () => {
+    resetBtn.addEventListener("click", () => {
+      // Сохраняем рекорд с первого круга
+      if (firstRound) {
+        record = score;
+        recBox.textContent = `Рекорд: ${record}`;
+      }
+
       overlay.classList.remove("show");
       finalText.style.display = "none";
-      reset.style.display = "none";
+      resetBtn.style.display = "none";
       vid.style.display = "none";
       img.style.display = "block";
-      img.src = "toothpaste.png"; // дальше всегда toothpaste
+      img.src = "toothpaste.png"; // дальше всегда эта картинка
       msg.textContent = "";
       clicks = 0;
       explosionChance = 0.05;
@@ -296,3 +297,4 @@
   </script>
 </body>
 </html>
+```0
