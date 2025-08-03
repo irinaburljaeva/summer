@@ -186,6 +186,7 @@
     let explosionChance = 0;
     let firstExplosion = false;
     let lastMessage = "";
+    let confettiShown = false;
 
     function getRandomMessage() {
       let newMessage;
@@ -230,6 +231,10 @@
           record = counter;
           recordEl.textContent = `Рекорд: ${record}`;
           if (recordEl.classList.contains("hidden")) recordEl.classList.remove("hidden");
+          if (!confettiShown && (record === 5 || record === 10 || record === 15)) {
+            confettiShown = true;
+            launchConfetti();
+          }
         }
 
         if (Math.random() < 0.3) {
@@ -269,10 +274,38 @@
       pinkOverlay.classList.remove("show");
       finalText.style.display = "none";
       messageEl.textContent = "";
+      confettiShown = false;
     });
 
     tube.addEventListener("mousedown", (e) => e.preventDefault());
     tube.addEventListener("click", handleTubeClick);
+
+    function launchConfetti() {
+      const duration = 1 * 1000;
+      const end = Date.now() + duration;
+
+      (function frame() {
+        confetti({
+          particleCount: 5,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ["#CF2C02", "#FFBA08", "#E85D04"]
+        });
+        confetti({
+          particleCount: 5,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ["#CF2C02", "#FFBA08", "#E85D04"]
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      })();
+    }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
 </html>
