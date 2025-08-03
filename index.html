@@ -31,13 +31,14 @@
     }
     #score-container { top: 20px; right: 20px; }
     #record-container { top: 20px; left: 20px; }
+
     #message {
       margin-top: 20px;
       font-size: 20px;
       min-height: 40px;
       opacity: 0;
       transform: scale(0.9);
-      transition: opacity 0.3s, transform 0.3s;
+      transition: opacity 0.3s ease, transform 0.3s ease;
       display: inline-block;
       max-width: 80%;
       font-weight: bold;
@@ -46,6 +47,7 @@
       opacity: 1;
       transform: scale(1);
     }
+
     #bonus {
       position: fixed;
       top: 50%;
@@ -60,32 +62,20 @@
       animation: fadeIn 0.5s forwards;
       z-index: 12;
     }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translate(-50%, -30px); }
       to { opacity: 1; transform: translate(-50%, -50%); }
     }
-    @keyframes emojiJump {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes emojiWiggle {
-      0% { transform: rotate(0deg); }
-      25% { transform: rotate(-10deg); }
-      50% { transform: rotate(10deg); }
-      75% { transform: rotate(-10deg); }
-      100% { transform: rotate(0deg); }
-    }
-    .emoji-pop {
-      display: inline-block;
-      animation: emojiJump 0.8s ease, emojiWiggle 1s ease-in-out 0.8s;
-    }
+
     #toothpaste-img, #toothpaste-video {
       width: 200px;
       cursor: pointer;
       user-select: none;
     }
     #toothpaste-img:focus, #toothpaste-video:focus { outline: none; }
+    img, video { outline: none; }
+
     .shake { animation: shake 0.3s; }
     @keyframes shake {
       0% { transform: translate(0,0) }
@@ -94,6 +84,7 @@
       75% { transform: translate(-3px,0) }
       100% { transform: translate(0,0) }
     }
+
     #pink-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -105,6 +96,7 @@
     }
     #pink-overlay.show { animation: fadeInOverlay 1.5s forwards; }
     @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+
     #final-text {
       position: fixed;
       top: 50%; left: 50%;
@@ -122,6 +114,7 @@
     @keyframes showText {
       to { opacity: 1; }
     }
+
     #reset-btn {
       margin-top: 20px;
       padding: 10px 20px;
@@ -220,6 +213,8 @@
       }
     }
 
+    toothpasteImg.addEventListener("mousedown", e => e.preventDefault()); // убирает выделение
+
     toothpasteImg.addEventListener("click", () => {
       toothpasteImg.classList.add("shake");
       setTimeout(()=>toothpasteImg.classList.remove("shake"),300);
@@ -253,7 +248,6 @@
         const newMsg = randomMessage();
         message.textContent = newMsg;
         message.classList.remove("show");
-        message.classList.add("emoji-pop");
         setTimeout(()=>message.classList.add("show"),10);
 
         explosionChance = Math.min(0.5, explosionChance + 0.05);
