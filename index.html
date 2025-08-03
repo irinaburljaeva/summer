@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Игра с пастой</title>
   <style>
-    /* Отключаем синее выделение при клике */
+    /* Убираем синее выделение */
     img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; outline: none; }
 
     body {
@@ -35,12 +35,21 @@
     #score-container { top: 16px; right: 16px; }
     #record-container { top: 16px; left: 16px; }
 
+    /* Панель для иконок ачивок */
+    #achieve-bar {
+      position: absolute;
+      top: 40px;
+      left: 16px;
+      display: flex;
+      gap: 6px;
+      font-size: 20px;
+      pointer-events: none;
+    }
+
     #toothpaste-img, #toothpaste-video {
       width: 200px;
       cursor: pointer;
-      user-select: none;
     }
-
     .shake {
       animation: shake 0.3s;
     }
@@ -51,7 +60,7 @@
       75%     { transform: translateX(-4px); }
     }
 
-    /* Анимация появления текста и эмодзи */
+    /* Появление текста/эмодзи */
     @keyframes popText {
       0%   { opacity: 0; transform: scale(0.6); }
       60%  { opacity: 1; transform: scale(1.1); }
@@ -61,11 +70,9 @@
       margin-top: 20px;
       font-size: 20px;
       min-height: 1.2em;
-      display: inline-block;
-      max-width: 80%;
-      word-wrap: break-word;
-      font-weight: bold;
       opacity: 0;
+      display: inline-block;
+      font-weight: bold;
     }
     #message.show {
       animation: popText 0.4s ease-out both;
@@ -78,13 +85,14 @@
       left: 50%;
       transform: translateX(-50%) translateY(20px);
       background: #CF2C02;
-      color: white;
+      color: #fff;
       padding: 10px 16px;
       border-radius: 8px;
       font-size: 18px;
       opacity: 0;
       z-index: 20;
       transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
     }
     #achieve-popup.show {
       opacity: 1;
@@ -112,8 +120,7 @@
 
     #pink-overlay {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0; left: 0; width: 100%; height: 100%;
       background: #FFD6E7;
       opacity: 0;
       pointer-events: none;
@@ -147,8 +154,7 @@
 
     #reset-btn {
       position: fixed;
-      top: 70%;
-      left: 50%;
+      top: 70%; left: 50%;
       transform: translateX(-50%);
       padding: 10px 20px;
       background: #CF2C02;
@@ -166,6 +172,7 @@
   <div id="game-container">
     <div id="score-container">Проказы с пастой: 0</div>
     <div id="record-container">Рекорд: 0</div>
+    <div id="achieve-bar"></div>
     <img id="toothpaste-img" src="intro.jpg" alt="Intro" draggable="false" />
     <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;"></video>
     <div id="message"></div>
@@ -183,58 +190,64 @@
           msg       = document.getElementById("message"),
           scoreBox  = document.getElementById("score-container"),
           recBox    = document.getElementById("record-container"),
+          bar       = document.getElementById("achieve-bar"),
           overlay   = document.getElementById("pink-overlay"),
           finalText = document.getElementById("final-text"),
           resetBtn  = document.getElementById("reset-btn"),
           bonus     = document.getElementById("bonus"),
           popup     = document.getElementById("achieve-popup");
 
-    let score           = 0,
-        record          = 0,
-        firstRound      = true,
-        clicks          = 0,
-        explosionCount  = 0,
-        challengeSuccess= false,
-        explosionChance = 0.05,
-        lastMsg         = "";
+    let score            = 0,
+        record           = 0,
+        firstRound       = true,
+        clicks           = 0,
+        explosionCount   = 0,
+        challengeSuccess = false,
+        explosionChance  = 0.05,
+        lastMsg          = "";
 
-    // Ачивки
-    const achievements = [
-      { id:'lightMischief',   name:'🪥 Лёгкая пакость',              condition: s=>s>=5,               unlocked:false },
-      { id:'failDay',         name:'💥 Неудачный день',              condition: ()=>explosionCount>=5, unlocked:false },
-      { id:'speedMischief',   name:'⚡ Молниеносная пакость',         condition: ()=>challengeSuccess,   unlocked:false },
-      { id:'mainMischief',    name:'🎖️ Главный проказник',           condition: s=>s>=10,              unlocked:false },
-      { id:'campMischief',    name:'👑 Главный пакостник лагеря',    condition: s=>s>=20,              unlocked:false },
-      { id:'collector',       name:'💎 Коллекционер',                condition: ()=> achievements
-                                                            .filter(a=>a.id!=='collector')
-                                                            .every(a=>a.unlocked),
-                             unlocked:false }
-    ];
-
+    // тексты для обычных кликов
     const texts = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
       "Шалость удалась! Вы измазали пастой вашего соседа 😁",
       "Вы измазали пастой куратора Сашу 😅",
       "Кажется кто-то измазал пастой тренера Машу...и да, это были Вы 😏",
       "Вас хотели измазать пастой, но вы оказались быстрее!",
-      "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали ее пастой",
+      "Тренеру Тане не повезло! Вы измазали ее пастой 😜",
       "Вы измазали пастой другого шагателя!",
-      "Вы измазали пастой зеркало в ванной",
-      "Ты устроил пастную баталию 🎉",
-      "Паста повсюду – уборка будет долгой 🧹",
-      "Паста на экране: теперь и мемы в пасте 😂",
-      "Никто не догадается, что это сделал ты 🤫",
-      "Клавиатура тоже получила порцию пасты 💻",
-      "Пора чистить зубы... или друзей? 🦷",
-      "Паста как граффити на стенах 🎨",
-      "Теперь твоя кружка в пасте ☕"
+      "Теперь и зеркало блестит от пасты! 🤭",
+      "Твоя кружка теперь пастой украшена ☕",
+      "Уборку начнет коллега! 🧹",
+      "Паста — новое граффити 🎨",
+      "Клавиатура в пасте! 💻"
     ];
-    const emojis = ["😂","🤣","😜","🙈","🙃","😏"];
+    const emojis = ["😂","🤣","🙈","😏","🥳"];
+    // тексты для финального взрыва
+    const explosionTexts = [
+      "Ахаха! Тюбик взорвался и теперь ты вся в пасте! 🙈",
+      "Упс... Тюбик лопнул и паста разлетелась по тебе! 😢",
+      "Ой-ой! Паста брызнула на тебя вместо других! 🤷‍♀️",
+      "Слишком усердно… теперь ты в пасте по локоть! 😭",
+      "Тюбик решил пошалить и промазал тебя! 😞"
+    ];
+    // бонусы
     const bonusesArr = [
       { chance:0.15, text:"Бонус! +2 проказы 🎁", add:2 },
       { chance:0.10, text:"Супер-клик! Следующий +3 🔥", superClick:true }
     ];
     let superClick = false;
+
+    // ачивки с эмодзи и условиями
+    const achievements = [
+      { id:'lightMischief', name:'Лёгкая пакость', emoji:'🪥', condition: s=>s>=5,               unlocked:false },
+      { id:'failDay',       name:'Неудачный день', emoji:'💥', condition: ()=>explosionCount>=5, unlocked:false },
+      { id:'speedMischief', name:'Молниеносная пакость', emoji:'⚡', condition: ()=>challengeSuccess, unlocked:false },
+      { id:'mainMischief',  name:'Главный проказник', emoji:'🏅', condition: s=>s>=10,            unlocked:false },
+      { id:'campMischief',  name:'Главный пакостник лагеря', emoji:'👑', condition: s=>s>=20,       unlocked:false },
+      { id:'collector',     name:'Коллекционер', emoji:'💎', condition: ()=>achievements
+                                                           .filter(a=>a.id!=='collector')
+                                                           .every(a=>a.unlocked), unlocked:false }
+    ];
 
     function randomMsg() {
       let m;
@@ -246,31 +259,31 @@
       lastMsg = m;
       return m;
     }
-
     function showMessage(text) {
       msg.textContent = text;
       msg.classList.remove("show");
       void msg.offsetWidth;
       msg.classList.add("show");
     }
-
     function showAchievement(name) {
-      popup.textContent = `${name} — ачивка получена!`;
+      popup.textContent = `🏅 ${name} получена!`;
       popup.classList.add("show");
-      setTimeout(()=>{
-        popup.classList.remove("show");
-      }, 2000);
+      setTimeout(()=> popup.classList.remove("show"), 1800);
     }
-
+    function appendAchievementIcon(emoji) {
+      const span = document.createElement('span');
+      span.textContent = emoji;
+      bar.append(span);
+    }
     function checkAchievements() {
       achievements.forEach(a => {
         if (!a.unlocked && a.condition(score)) {
           a.unlocked = true;
           showAchievement(a.name);
+          appendAchievementIcon(a.emoji);
         }
       });
     }
-
     function updateScore() {
       scoreBox.textContent = `Проказы с пастой: ${score}`;
       if (!firstRound && score > record) {
@@ -285,7 +298,6 @@
       img.classList.add("shake");
       setTimeout(()=>img.classList.remove("shake"),300);
 
-      // intro только в первом раунде
       if (firstRound && img.src.includes("intro.jpg")) {
         img.src = "toothpaste.png";
         scoreBox.style.display = "block";
@@ -293,8 +305,9 @@
       }
 
       clicks++;
-      // шанс взрыва
+
       if (clicks>=3 && Math.random()<explosionChance) {
+        // взрыв
         explosionCount++;
         checkAchievements();
 
@@ -308,13 +321,16 @@
 
         vid.onended = ()=>{
           overlay.classList.add("show");
-          // показываем финальный текст
-          finalText.textContent = "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈";
+          // случайный текст взрыва
+          finalText.textContent = explosionTexts[
+            Math.floor(Math.random()*explosionTexts.length)
+          ];
           setTimeout(()=>{
             finalText.style.display = "block";
             resetBtn.style.display = "block";
           },500);
         };
+
       } else {
         // обычный клик
         let pts = superClick ? 3 : 1;
@@ -361,3 +377,4 @@
   </script>
 </body>
 </html>
+```0
