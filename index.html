@@ -37,7 +37,7 @@
       font-size: 20px;
       min-height: 40px;
       opacity: 0;
-      transform: scale(0.9);
+      transform: scale(0.8);
       transition: opacity 0.3s ease, transform 0.3s ease;
       display: inline-block;
       max-width: 80%;
@@ -185,10 +185,9 @@
 
     function updateScore() {
       scoreContainer.textContent = `Проказы с пастой: ${score}`;
-      if (!firstRound && score > record) {
+      if (score > record) {
         record = score;
-        recordContainer.textContent = `Рекорд: ${record}`;
-        if (!confettiShown) { launchConfetti(); confettiShown = true; }
+        if (!firstRound) recordContainer.textContent = `Рекорд: ${record}`;
       }
     }
 
@@ -279,17 +278,10 @@
       message.textContent = "";
       clickCount = 0;
       explosionChance = 0.05;
-
-      if (firstRound) {
-        record = score;
-        recordContainer.textContent = `Рекорд: ${record}`;
-      }
-
       score = 0;
       scoreContainer.textContent = "Проказы с пастой: 0";
       scoreContainer.style.display = "block";
       recordContainer.style.display = firstRound ? "none" : "block";
-      confettiShown = false;
       firstRound = false;
     });
   </script>
