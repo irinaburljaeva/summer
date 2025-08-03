@@ -22,10 +22,14 @@
       position: absolute;
       top: 10px;
       right: 20px;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
-      color: #CF2C02;
+      background: #CF2C02;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 20px;
       display: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
 
     .toothpaste {
@@ -77,6 +81,7 @@
       background: #FFD6E8;
       opacity: 0;
       pointer-events: none;
+      z-index: 5;
     }
 
     #videoContainer {
@@ -85,7 +90,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 5;
+      z-index: 10;
     }
 
     video {
@@ -95,19 +100,24 @@
 
     #finalMessage {
       display: none;
-      position: absolute;
-      bottom: 100px;
-      font-size: 20px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 22px;
       font-weight: bold;
       color: #333;
       text-align: center;
-      width: 100%;
+      width: 80%;
+      z-index: 20;
     }
 
     #resetButton {
       display: none;
-      position: absolute;
+      position: fixed;
       bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
       padding: 10px 20px;
       background: #CF2C02;
       color: white;
@@ -115,13 +125,14 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 16px;
+      z-index: 20;
     }
 
     img:focus { outline: none; }
   </style>
 </head>
 <body>
-  <div id="counter">Проказы с пастой: 0 (Новичок)</div>
+  <div id="counter">Проказы с пастой: 0</div>
   <img id="image" src="intro.jpg" class="toothpaste" tabindex="0" />
   <div id="message"></div>
   <div id="emoji"></div>
@@ -166,31 +177,24 @@
     let nextExplosion = 3 + Math.floor(Math.random() * 3);
     let lastMessage = "";
 
-    function getLevelText(value) {
-      if (value < 5) return "Новичок";
-      if (value < 10) return "Опытный проказник";
-      return "Король пасты 👑";
-    }
-
     function updateCounter() {
-      counter.textContent = `Проказы с пастой: ${counterValue} (${getLevelText(counterValue)})`;
+      counter.textContent = `Проказы с пастой: ${counterValue}`;
     }
 
     function showRandomMessage() {
-      let newMessage;
-      do {
-        newMessage = messages[Math.floor(Math.random() * messages.length)];
-      } while (newMessage === lastMessage);
-      lastMessage = newMessage;
-
-      message.textContent = newMessage;
-
-      if (Math.random() < 0.3) {
+      if (Math.random() < 0.4) {
         emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
         emoji.style.animation = "none";
         emoji.offsetHeight; 
         emoji.style.animation = "popUp 0.5s forwards";
+        message.textContent = "";
       } else {
+        let newMessage;
+        do {
+          newMessage = messages[Math.floor(Math.random() * messages.length)];
+        } while (newMessage === lastMessage);
+        lastMessage = newMessage;
+        message.textContent = newMessage;
         emoji.textContent = "";
       }
     }
@@ -202,6 +206,8 @@
       if (image.src.includes("intro.jpg")) {
         image.src = "toothpaste.png";
         counter.style.display = "block";
+        counterValue++;
+        updateCounter();
         showRandomMessage();
         return;
       }
@@ -220,9 +226,11 @@
         message.textContent = "";
         emoji.textContent = "";
 
-        let overlayInterval = setInterval(() => {
-          overlay.style.opacity = parseFloat(overlay.style.opacity) + 0.05;
-          if (overlay.style.opacity >= 1) clearInterval(overlayInterval);
+        let opacity = 0;
+        const fadeIn = setInterval(() => {
+          opacity += 0.05;
+          overlay.style.opacity = opacity;
+          if (opacity >= 1) clearInterval(fadeIn);
         }, 100);
 
         explosionVideo.onended = () => {
