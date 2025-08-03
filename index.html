@@ -14,6 +14,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
     }
+
     #game-container {
       position: relative;
       height: 100vh;
@@ -22,26 +23,36 @@
       justify-content: center;
       align-items: center;
     }
-    #score-container,
-    #record-container {
+
+    /* Счёт */
+    #score-container {
       position: absolute;
+      top: 16px;
+      right: 16px;
       padding: 8px 12px;
       border-radius: 8px;
       background: #CF2C02;
       color: #fff;
       font-weight: bold;
-      display: none;
       font-size: 14px;
-    }
-    #score-container { top: 16px; right: 16px; }
-    #record-container {
-      top: 16px; left: 16px;
-      position: absolute;
-      /* чтобы абсолютные внутренние элементы располагались относительно этого контейнера */
-      position: relative;
+      display: none;
     }
 
-    /* контейнер под иконки ачивок */
+    /* Рекорд */
+    #record-container {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #CF2C02;
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      /* обязательно display:block, появится после первого взрыва */
+    }
+
+    /* Контейнер для иконок ачивок под рекордом */
     #achievements {
       position: absolute;
       bottom: -6px;
@@ -52,11 +63,14 @@
       pointer-events: none;
     }
 
+    /* Кнопка/видео */
     #toothpaste-img,
     #toothpaste-video {
       width: 200px;
       cursor: pointer;
+      user-select: none;
     }
+
     .shake {
       animation: shake 0.3s;
     }
@@ -67,6 +81,7 @@
       75%     { transform: translateX(-4px); }
     }
 
+    /* Появление текста/эмодзи */
     #message {
       margin-top: 20px;
       font-size: 20px;
@@ -74,35 +89,36 @@
       opacity: 0;
       display: inline-block;
       font-weight: bold;
+      transition: opacity 0.3s, transform 0.3s;
+      transform: scale(0.9);
     }
     #message.show {
-      animation: popText 0.4s ease-out both;
-    }
-    @keyframes popText {
-      0%   { opacity: 0; transform: scale(0.6); }
-      60%  { opacity: 1; transform: scale(1.1); }
-      100% { opacity: 1; transform: scale(1); }
+      opacity: 1;
+      transform: scale(1);
     }
 
-    #bonus {
+    /* Всплывашка награды */
+    #achieve-popup {
       position: fixed;
-      top: 50%;
+      bottom: 20px;
       left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 24px;
-      font-weight: bold;
-      background: #ffeaa7;
-      padding: 10px 20px;
-      border-radius: 12px;
-      display: none;
-      animation: fadeInBonus 0.5s forwards;
-      z-index: 12;
+      transform: translateX(-50%) translateY(20px);
+      background: #CF2C02;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 16px;
+      opacity: 0;
+      z-index: 20;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
     }
-    @keyframes fadeInBonus {
-      from { opacity: 0; transform: translate(-50%, -30px) scale(0.8); }
-      to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    #achieve-popup.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
+    /* Оверлей взрыва */
     #pink-overlay {
       position: fixed; top: 0; left: 0;
       width: 100%; height: 100%;
@@ -118,6 +134,7 @@
       from { opacity: 0; } to { opacity: 1; }
     }
 
+    /* Финальный текст */
     #final-text {
       position: fixed;
       top: 50%; left: 50%;
@@ -135,6 +152,7 @@
       from { opacity: 0; } to { opacity: 1; }
     }
 
+    /* Кнопка сброса */
     #reset-btn {
       position: fixed; top: 70%; left: 50%;
       transform: translateX(-50%);
@@ -153,8 +171,7 @@
 <body>
   <div id="game-container">
     <div id="score-container">Проказы с пастой: 0</div>
-    <div id="record-container">
-      Рекорд: 0
+    <div id="record-container">Рекорд: 0
       <div id="achievements"></div>
     </div>
 
@@ -213,10 +230,10 @@
     ];
 
     const achievements = [
-      { id:'light',   name:'Лёгкая пакость',       emoji:'🪥', cond:s=>s>=5,  unlocked:false, note:'за 5 проказ' },
-      { id:'main',    name:'Главный проказник',     emoji:'🏅', cond:s=>s>=10, unlocked:false, note:'за 10 проказ' },
-      { id:'camp',    name:'Главный пакостник',     emoji:'👑', cond:s=>s>=20, unlocked:false, note:'за 20 проказ' },
-      { id:'failday', name:'Неудачный день',        emoji:'💥', cond:()=>explosionCount>=5, unlocked:false, note:'за 5 взрывов' }
+      { id:'light',   name:'Лёгкая пакость',       emoji:'🪥',  cond:s=>s>=5,  unlocked:false, note:'за 5 проказ' },
+      { id:'main',    name:'Главный проказник',     emoji:'🏅',  cond:s=>s>=10, unlocked:false, note:'за 10 проказ' },
+      { id:'camp',    name:'Главный пакостник',     emoji:'👑',  cond:s=>s>=20, unlocked:false, note:'за 20 проказ' },
+      { id:'failday', name:'Неудачный день',        emoji:'💥',  cond:()=>explosionCount>=5, unlocked:false, note:'за 5 взрывов' }
     ];
 
     function randomMsg() {
@@ -238,12 +255,11 @@
     }
 
     function showAchievement(a) {
-      // всплывашка с пояснением
       popup.textContent = `${a.emoji} ${a.name} — ${a.note}`;
       popup.classList.add("show");
-      setTimeout(()=>popup.classList.remove("show"), 2000);
       // добавляем иконку под рекордом
       achBox.innerHTML += `<span>${a.emoji}</span>`;
+      setTimeout(()=>popup.classList.remove("show"), 2000);
     }
 
     function checkAchievements() {
@@ -272,6 +288,7 @@
       if(firstRound && img.src.includes("intro.jpg")) {
         img.src = "toothpaste.png";
         scoreBox.style.display = "block";
+        recBox.style.display = "block";
         return;
       }
 
@@ -285,7 +302,6 @@
         vid.play();
         msg.textContent = "";
         scoreBox.style.display = "none";
-        recBox.style.display = firstRound ? "none" : "block";
 
         vid.onended = ()=>{
           overlay.classList.add("show");
@@ -322,9 +338,8 @@
       score = 0;
       scoreBox.textContent = "Проказы с пастой: 0";
       scoreBox.style.display = "block";
-      recBox.style.display = "block";
       firstRound = false;
     });
   </script>
 </body>
-  </html>
+</html>
