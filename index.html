@@ -3,286 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Игра с пастой</title>
+  <title>Шалости с пастой</title>
   <style>
     body {
-      margin: 0;
-      background: white;
       font-family: Arial, sans-serif;
-      text-align: center;
-      -webkit-tap-highlight-color: transparent;
-    }
-    #game-container {
+      margin: 0;
+      padding: 0;
+      background: white;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
-      position: relative;
     }
-    #score-container, #record-container {
-      position: absolute;
-      padding: 10px 15px;
-      border-radius: 10px;
-      font-weight: bold;
-      background: #CF2C02;
+    .score-container {
+      display: flex;
+      justify-content: space-between;
+      width: 95%;
+      margin: 10px;
+    }
+    .score-box {
+      background: #cf2c02;
       color: white;
-      display: none;
-      font-size: 16px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
     }
-    #score-container { top: 20px; right: 20px; }
-    #record-container { top: 20px; left: 20px; }
+    #toothpasteImage, #toothpasteVideo {
+      width: 200px;
+      margin-top: 20px;
+      cursor: pointer;
+      outline: none;
+      border: none;
+      user-select: none;
+    }
     #message {
       margin-top: 20px;
       font-size: 20px;
-      min-height: 40px;
+      font-weight: bold;
       opacity: 0;
-      transform: scale(0.7);
-      transition: opacity 0.4s, transform 0.4s;
+      transform: scale(0.8);
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
     #message.show {
       opacity: 1;
       transform: scale(1);
     }
-    #bonus {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 24px;
-      font-weight: bold;
-      background: #ffeaa7;
-      padding: 10px 20px;
-      border-radius: 12px;
-      display: none;
-      animation: scaleFade 0.6s forwards;
-      z-index: 12;
-    }
-    @keyframes scaleFade {
-      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
-      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    }
-    #toothpaste-img, #toothpaste-video {
-      width: 200px;
-      cursor: pointer;
-      user-select: none;
-      outline: none;
-    }
-    #toothpaste-img:focus, #toothpaste-video:focus { outline: none; }
-    .shake { animation: shake 0.3s; }
-    @keyframes shake {
-      0% { transform: translate(0,0) }
-      25% { transform: translate(-3px,0) }
-      50% { transform: translate(3px,0) }
-      75% { transform: translate(-3px,0) }
-      100% { transform: translate(0,0) }
-    }
-    #pink-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #FFD6E7;
+    #emoji {
+      font-size: 40px;
+      margin-top: 10px;
       opacity: 0;
-      pointer-events: none;
-      z-index: 10;
-    }
-    #pink-overlay.show { animation: fadeInOverlay 1.5s forwards; }
-    @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
-    #final-text {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 22px;
-      font-weight: bold;
-      background: white;
-      padding: 15px 25px;
-      border-radius: 12px;
-      display: none;
-      z-index: 11;
-      opacity: 0;
-      animation: showText 0.5s forwards 0.3s;
-    }
-    @keyframes showText { to { opacity: 1; } }
-    #reset-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: #CF2C02;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      display: none;
-      z-index: 12;
-      position: fixed;
-      top: 70%;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-  </style>
-</head>
-<body>
-  <div id="game-container">
-    <div id="score-container">Проказы с пастой: 0</div>
-    <div id="record-container">Рекорд: 0</div>
-    <img id="toothpaste-img" src="intro.jpg" alt="Toothpaste" />
-    <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;"></video>
-    <div id="message"></div>
-    <button id="reset-btn">Стереть пасту</button>
-  </div>
-  <div id="pink-overlay"></div>
-  <div id="final-text">Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈</div>
-  <div id="bonus"></div>
-
-  <script>
-    const toothpasteImg = document.getElementById("toothpaste-img");
-    const toothpasteVideo = document.getElementById("toothpaste-video");
-    const message = document.getElementById("message");
-    const scoreContainer = document.getElementById("score-container");
-    const recordContainer = document.getElementById("record-container");
-    const overlay = document.getElementById("pink-overlay");
-    const finalText = document.getElementById("final-text");
-    const resetBtn = document.getElementById("reset-btn");
-    const bonusBox = document.getElementById("bonus");
-
-    let score = 0, record = 0, bestScore = 0, firstRound = true, clickCount = 0;
-    let explosionChance = 0.05, lastMessage = "", confettiShown = false;
-
-    const messages = [
-      "Пока никто не видел вы намазали пастой тренера Настю 😉",
-      "Шалость удалась! Вы измазали пастой вашего соседа 😁",
-      "Вы измазали пастой куратора Сашу 😅",
-      "Кажется кто-то измазал пастой тренера Машу...и да, это были Вы 😏",
-      "Вас хотели измазать пастой, но вы оказались быстрее!",
-      "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали ее пастой",
-      "Вы измазали пастой другого шагателя!",
-      "Вы измазали пастой зеркало в ванной"
-    ];
-    const emojis = ["😂","🤣","😜","🙈","🙃","😏"];
-    const bonuses = [
-      { chance: 0.15, text: "Бонус! +2 проказы 🎁", add: 2 },
-      { chance: 0.1, text: "Супер-клик! Следующий +3 🔥", add: 0, superClick: true }
-    ];
-    let superClick = false;
-
-    function randomMessage() {
-      let msg;
-      do {
-        msg = Math.random() < 0.3 ? emojis[Math.floor(Math.random()*emojis.length)] :
-                                    messages[Math.floor(Math.random()*messages.length)];
-      } while (msg === lastMessage);
-      lastMessage = msg;
-      return msg;
-    }
-
-    function updateScore() {
-      scoreContainer.textContent = `Проказы с пастой: ${score}`;
-      if (!firstRound) {
-        if (score > bestScore) {
-          bestScore = score;
-          recordContainer.textContent = `Рекорд: ${bestScore}`;
-          if (!confettiShown && bestScore % 5 === 0) {
-            launchConfetti();
-            confettiShown = true;
-          }
-        }
-      }
-    }
-
-    function launchConfetti() {
-      const colors = ['#CF2C02','#FFBA08','#E85D04'];
-      for (let i = 0; i < 150; i++) {
-        const conf = document.createElement("div");
-        conf.style.position = "fixed";
-        conf.style.width = "8px";
-        conf.style.height = "8px";
-        conf.style.background = colors[Math.floor(Math.random()*colors.length)];
-        conf.style.top = "-10px";
-        conf.style.left = Math.random()*100 + "vw";
-        conf.style.opacity = 0.8;
-        conf.style.animation = `fall ${Math.random()*2+3}s linear forwards`;
-        document.body.appendChild(conf);
-        setTimeout(()=>conf.remove(),4000);
-      }
-    }
-
-    toothpasteImg.addEventListener("click", () => {
-      toothpasteImg.classList.add("shake");
-      setTimeout(()=>toothpasteImg.classList.remove("shake"),300);
-
-      if (toothpasteImg.src.includes("intro.jpg")) {
-        toothpasteImg.src = "toothpaste.png";
-        scoreContainer.style.display = "block";
-        return;
-      }
-
-      clickCount++;
-
-      if (clickCount >= 3 && Math.random() < explosionChance) {
-        playExplosion();
-      } else {
-        let points = superClick ? 3 : 1;
-        superClick = false;
-
-        if (!firstRound) {
-          bonuses.forEach(b => {
-            if (Math.random() < b.chance) {
-              bonusBox.textContent = b.text;
-              bonusBox.style.display = "block";
-              setTimeout(() => bonusBox.style.display = "none", 1500);
-              if (b.superClick) superClick = true;
-              else points += b.add;
-            }
-          });
-        }
-
-        score += points;
-        updateScore();
-
-        const newMsg = randomMessage();
-        message.textContent = newMsg;
-        message.classList.remove("show");
-        setTimeout(()=>message.classList.add("show"),10);
-
-        explosionChance = Math.min(0.5, explosionChance + 0.05);
-      }
-    });
-
-    function playExplosion() {
-      toothpasteImg.style.display = "none";
-      toothpasteVideo.style.display = "block";
-      toothpasteVideo.currentTime = 0;
-      toothpasteVideo.play();
-      message.textContent = "";
-      scoreContainer.style.display = "none";
-      recordContainer.style.display = firstRound ? "none" : "block";
-
-      toothpasteVideo.onended = () => {
-        overlay.classList.add("show");
-        setTimeout(()=>{
-          finalText.style.display = "block";
-          resetBtn.style.display = "block";
-        }, 500);
-      };
-    }
-
-    resetBtn.addEventListener("click", () => {
-      overlay.classList.remove("show");
-      finalText.style.display = "none";
-      resetBtn.style.display = "none";
-      toothpasteVideo.style.display = "none";
-      toothpasteImg.style.display = "block";
-      toothpasteImg.src = "intro.jpg";
-      message.textContent = "";
-      clickCount = 0;
-      explosionChance = 0.05;
-      score = 0;
-      scoreContainer.textContent = "Проказы с пастой: 0";
-      if (!firstRound) recordContainer.style.display = "block";
-      confettiShown = false;
-      firstRound = false;
-    });
-  </script>
-</body>
-</html>
+      transform:
