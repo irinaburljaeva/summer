@@ -8,8 +8,7 @@
     img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; background: white; font-family: Arial, sans-serif; text-align: center; }
     #game-container {
-      position: relative;
-      height: 100vh;
+      position: relative; height: 100vh;
       display: flex; flex-direction: column;
       justify-content: center; align-items: center;
     }
@@ -136,7 +135,7 @@
         explosionChance = 0.05,
         lastMsg         = "",
         superClick      = false,
-        protectedClicks = 0;          // <— счётчик безопасных кликов
+        protectedClicks = 0;
 
     const messages = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
@@ -168,6 +167,7 @@
 
     function updateScore() {
       scoreBox.textContent = `Проказы с пастой: ${score}`;
+      // рекорд подсчитываем в любой момент, но показываем сразу со 2-го раунда
       if (!firstRound && score > record) {
         record = score;
         recBox.textContent = `Рекорд: ${record}`;
@@ -190,34 +190,32 @@
 
       vid.onended = () => {
         overlay.classList.add("show");
-        finalText.textContent = 
+        finalText.textContent =
           "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈";
         setTimeout(()=>{
           finalText.style.display = "block";
           resetBtn.style.display = "block";
-          recBox.style.display = firstRound ? "none" : "block";
+          // показываем рекордный счётник
+          recBox.style.display = "block";
         }, 500);
       };
     }
 
     function handleBonus() {
-      // бонусы появляются только после 5 проказ и со 2-го раунда
       if (score < 5 || firstRound) return 0;
-
       let extra = 0;
       bonuses.forEach(b => {
         if (Math.random() < b.chance) {
           bonusBox.textContent = b.text;
           bonusBox.style.display = "block";
           setTimeout(()=>bonusBox.style.display = "none",1500);
-
           if (b.superClick) {
             superClick = true;
           } else if (b.add) {
             extra += b.add;
           } else if (b.reduce) {
             explosionChance = Math.max(0.05, explosionChance - b.reduce);
-            protectedClicks = 5;  // гарантированные 5 кликов без взрыва
+            protectedClicks = 5; // следующие 5 кликов без взрыва
           }
         }
       });
@@ -236,17 +234,17 @@
 
       clickCount++;
 
-      // Если есть защищённые клики, просто начисляем очки
+      // если есть защищённые клики — просто начисляем
       if (protectedClicks > 0) {
         protectedClicks--;
       }
-      // Иначе проверяем взрыв
+      // иначе проверяем взрыв
       else if (clickCount >= 3 && Math.random() < explosionChance) {
         playExplosion();
         return;
       }
 
-      // Нормальный клик — начисляем очки + бонусы
+      // обычный клик — начисляем очки + бонусы
       let pts = superClick ? 3 : 1;
       superClick = false;
       pts += handleBonus();
@@ -258,6 +256,11 @@
     });
 
     resetBtn.addEventListener("click", () => {
+      // при первом сбросе фиксируем рекорд
+      if (firstRound) {
+        record = score;
+        recBox.textContent = `Рекорд: ${record}`;
+      }
       overlay.classList.remove("show");
       finalText.style.display = "none";
       resetBtn.style.display = "none";
@@ -270,6 +273,8 @@
       score = 0;
       scoreBox.textContent = "Проказы с пастой: 0";
       scoreBox.style.display = "block";
+      // **Показываем рекорд сразу при старте 2-го раунда**
+      recBox.style.display = "block";
       firstRound = false;
     });
   </script>
