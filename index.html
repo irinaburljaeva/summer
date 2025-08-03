@@ -16,14 +16,21 @@
       max-width: 400px;
       margin: auto;
     }
+    #instruction {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
     img {
       width: 200px;
       cursor: pointer;
       transition: transform 0.2s;
+      outline: none;
+      user-select: none;
     }
-    img:active {
-      transform: scale(0.95);
-    }
+    img:focus { outline: none; }
+    img:active { transform: scale(0.95); }
+
     .message {
       margin-top: 1rem;
       font-size: 1.2rem;
@@ -61,14 +68,46 @@
       display: none;
       z-index: 20;
     }
+    #final-text {
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+      z-index: 20;
+    }
+    .bubble {
+      display: inline-block;
+      margin-right: 8px;
+      width: 14px;
+      height: 14px;
+      background: #eecbcb;
+      border-radius: 50%;
+      animation: popUp 0.4s ease forwards;
+    }
+    @keyframes popUp {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <img id="toothpaste" src="toothpaste.png" alt="Тюбик пасты" />
+    <div id="instruction">Нажми на тюбик пасты, чтобы совершить шалость</div>
+    <img id="toothpaste" src="toothpaste.png" alt="Тюбик пасты" tabindex="-1" />
     <video id="paste-video" src="toothpaste.mp4"></video>
     <div class="message" id="message"></div>
   </div>
+
+  <div id="final-text">Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈</div>
   <button id="clear-btn">Стереть пасту</button>
 
   <script>
@@ -86,18 +125,34 @@
     const video = document.getElementById("paste-video");
     const messageDiv = document.getElementById("message");
     const clearBtn = document.getElementById("clear-btn");
+    const finalText = document.getElementById("final-text");
+    const instruction = document.getElementById("instruction");
 
     toothpaste.addEventListener("click", () => {
-      clickCount++;
+      if (instruction.style.display !== "none") {
+        instruction.style.display = "none"; // скрываем подсказку после первого клика
+      }
 
+      clickCount++;
       const randomChance = Math.random();
+
       if (clickCount >= 4 && randomChance > 0.5) {
         playVideo();
       } else {
         const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-        messageDiv.textContent = randomMsg;
+        showBubbleMessage(randomMsg);
       }
     });
+
+    function showBubbleMessage(text) {
+      messageDiv.innerHTML = "";
+      const bubble = document.createElement("span");
+      bubble.className = "bubble";
+      const msgText = document.createElement("span");
+      msgText.textContent = text;
+      messageDiv.appendChild(bubble);
+      messageDiv.appendChild(msgText);
+    }
 
     function playVideo() {
       toothpaste.style.display = "none";
@@ -131,7 +186,13 @@
         overlay.style.animation = "slideDown 8s infinite alternate ease-in-out";
       }, 50);
 
-      clearBtn.style.display = "block";
+      setTimeout(() => {
+        finalText.style.display = "block";
+      }, 800);
+
+      setTimeout(() => {
+        clearBtn.style.display = "block";
+      }, 1800);
     }
 
     clearBtn.addEventListener("click", () => {
@@ -141,8 +202,10 @@
       toothpaste.style.display = "block";
       video.style.display = "none";
       clearBtn.style.display = "none";
+      finalText.style.display = "none";
       messageDiv.textContent = "";
       clickCount = 0;
+      instruction.style.display = "block"; // возвращаем подсказку
     });
 
     const style = document.createElement("style");
