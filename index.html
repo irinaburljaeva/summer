@@ -14,6 +14,7 @@
       align-items: center;
       height: 100vh;
       font-family: Arial, sans-serif;
+      overflow: hidden;
     }
 
     #wrapper {
@@ -21,17 +22,18 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      z-index: 2;
     }
 
     #toothpaste-img, #toothpaste-video {
       max-width: 250px;
       cursor: pointer;
       outline: none;
+      z-index: 3;
     }
 
     #paste-small {
-      position: absolute;
-      bottom: -30px;
+      margin-top: 10px;
       display: none;
       max-width: 180px;
       opacity: 0;
@@ -47,22 +49,19 @@
       background: url("paste.png") center/cover no-repeat;
       opacity: 0;
       display: none;
-      z-index: 10;
-      transition: opacity 0.5s ease-in-out;
+      z-index: 1;
+      transition: opacity 1s ease-in-out;
     }
 
     #final-container {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      margin-top: 20px;
       background: rgba(255, 255, 255, 0.95);
       padding: 20px;
       border-radius: 10px;
       text-align: center;
       max-width: 85%;
       display: none;
-      z-index: 20;
+      z-index: 2;
     }
 
     #final-text {
@@ -100,14 +99,14 @@
     <img id="toothpaste-img" src="intro.jpg" alt="Зубная паста" />
     <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;" muted></video>
     <img id="paste-small" src="paste.png" alt="Выдавленная паста" />
+
+    <div id="final-container">
+      <div id="final-text"></div>
+      <button id="clear-btn">Стереть пасту</button>
+    </div>
   </div>
 
   <div id="paste-overlay"></div>
-
-  <div id="final-container">
-    <div id="final-text"></div>
-    <button id="clear-btn">Стереть пасту</button>
-  </div>
 
   <script>
     const toothpasteImg = document.getElementById("toothpaste-img");
@@ -160,7 +159,7 @@
         clearBtn.style.display = "none";
         setTimeout(() => { finalContainer.style.display = "none"; }, 2500);
       } else {
-        clearBtn.style.display = "block";
+        setTimeout(() => { clearBtn.style.display = "block"; }, 2000);
       }
     }
 
@@ -172,12 +171,13 @@
       toothpasteVideo.onended = () => {
         toothpasteVideo.style.display = "none";
         pasteOverlay.style.display = "block";
-        setTimeout(() => pasteOverlay.style.opacity = "1", 100);
+        setTimeout(() => pasteOverlay.style.opacity = "1", 1000);
 
         finalText.textContent =
           "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈";
         finalContainer.style.display = "block";
-        clearBtn.style.display = "block";
+
+        setTimeout(() => { clearBtn.style.display = "block"; }, 2000);
       };
     }
 
