@@ -5,65 +5,179 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Шалости с пастой</title>
   <style>
+    /* Убираем синее выделение */
     img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background: white; font-family: Arial, sans-serif; text-align: center; }
-    #game-container { position: relative; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+    body {
+      margin: 0;
+      background: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #game-container {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Счёт */
     #score-container {
-      position: absolute; top: 16px; right: 16px;
-      padding: 8px 12px; border-radius: 8px; background: #CF2C02;
-      color: #fff; font-weight: bold; font-size: 14px; display: none;
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #CF2C02;
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      display: none;
     }
+
+    /* Рекорд */
     #record-container {
-      position: absolute; top: 16px; left: 16px;
-      padding: 8px 12px; border-radius: 8px; background: #CF2C02;
-      color: #fff; font-weight: bold; font-size: 14px;
-      display: none; /* прячем по умолчанию */
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #CF2C02;
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      display: none;
     }
+
+    /* Контейнер для иконок ачивок под рекордом */
     #achievements {
-      position: absolute; bottom: -6px; left: 8px;
-      display: flex; gap: 4px; font-size: 18px; pointer-events: none;
+      position: absolute;
+      bottom: -6px;
+      left: 8px;
+      display: flex;
+      gap: 4px;
+      font-size: 18px;
+      pointer-events: none;
     }
-    #toothpaste-img, #toothpaste-video { width:200px; cursor:pointer; }
-    .shake { animation: shake 0.3s; }
-    @keyframes shake { 0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-4px)} }
+
+    /* Картинка/видео */
+    #toothpaste-img,
+    #toothpaste-video {
+      width: 200px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Тряска */
+    .shake {
+      animation: shake 0.3s;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25%     { transform: translateX(-4px); }
+      50%     { transform: translateX(4px); }
+      75%     { transform: translateX(-4px); }
+    }
+
+    /* Анимация текста и эмодзи */
     #message {
-      margin-top:20px; font-size:20px; min-height:1.2em;
-      opacity:0; display:inline-block; font-weight:bold;
-      transform:scale(0.9); transition:opacity .3s,transform .3s;
+      margin-top: 20px;
+      font-size: 20px;
+      min-height: 1.2em;
+      opacity: 0;
+      display: inline-block;
+      font-weight: bold;
     }
-    #message.show { opacity:1; transform:scale(1); }
+    #message.show {
+      animation: popText 0.4s ease-out both;
+    }
+    @keyframes popText {
+      0%   { opacity: 0; transform: scale(0.6); }
+      60%  { opacity: 1; transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Всплывашка награды */
     #achieve-popup {
-      position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
-      background:#CF2C02; color:#fff; padding:10px 16px; border-radius:8px;
-      font-size:16px; opacity:0; z-index:20;
-      transition:opacity .3s,transform .3s; pointer-events:none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #CF2C02;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 16px;
+      opacity: 0;
+      z-index: 20;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
     }
-    #achieve-popup.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    #achieve-popup.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Оверлей взрыва */
     #pink-overlay {
-      position:fixed; top:0;left:0; width:100%;height:100%;
-      background:#FFD6E7; opacity:0; pointer-events:none; z-index:10;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #FFD6E7;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10;
     }
-    #pink-overlay.show { animation:fadeInOverlay 1.2s forwards; }
-    @keyframes fadeInOverlay { from{opacity:0}to{opacity:1} }
+    #pink-overlay.show {
+      animation: fadeInOverlay 1.2s forwards;
+    }
+    @keyframes fadeInOverlay {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    /* Финальный текст */
     #final-text {
-      position:fixed; top:50%;left:50%; transform:translate(-50%,-50%);
-      background:white; padding:16px 24px; border-radius:12px;
-      font-size:20px; font-weight:bold; display:none; z-index:11;
-      animation:showFinal .5s forwards .3s;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      display: none;
+      z-index: 11;
+      animation: showFinal 0.5s forwards 0.3s;
     }
-    @keyframes showFinal { from{opacity:0} to{opacity:1} }
+    @keyframes showFinal {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    /* Кнопка сброса */
     #reset-btn {
-      position:fixed; top:70%;left:50%; transform:translateX(-50%);
-      padding:10px 20px; background:#CF2C02; color:#fff;
-      border:none; border-radius:8px; font-size:16px; cursor:pointer;
-      display:none; z-index:12;
+      position: fixed; top: 70%; left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background: #CF2C02;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: none;
+      z-index: 12;
     }
   </style>
 </head>
 <body>
   <div id="game-container">
     <div id="score-container">Проказы с пастой: 0</div>
-    <div id="record-container">Рекорд: 0<div id="achievements"></div></div>
+    <div id="record-container">
+      Рекорд: 0
+      <div id="achievements"></div>
+    </div>
 
     <img id="toothpaste-img" src="intro.jpg" alt="Intro"/>
     <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;"></video>
@@ -87,7 +201,13 @@
           resetBtn  = document.getElementById("reset-btn"),
           popup     = document.getElementById("achieve-popup");
 
-    let score = 0, record = 0, firstRound = true, clicks = 0, explosionChance = 0.05, lastMsg = "";
+    let score           = 0,
+        record          = 0,
+        firstRound      = true,
+        clicks          = 0,
+        explosionCount  = 0,
+        explosionChance = 0.05,
+        lastMsg         = "";
 
     const texts = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
@@ -110,11 +230,12 @@
       "Тюбик решил пошалить и теперь вся паста на вас! 😞",
       "Ой! Кто-то переусердствовал...вы так сильно нажали на тюбик, что он взорвался! 😱"
     ];
+
     const achievements = [
-      { id:'light',   name:'Лёгкая пакость',       emoji:'🪥', cond:s=>s>=5,  unlocked:false, note:'за 5 проказ' },
-      { id:'main',    name:'Главный проказник',     emoji:'🏅', cond:s=>s>=10, unlocked:false, note:'за 10 проказ' },
-      { id:'camp',    name:'Главный пакостник',     emoji:'👑', cond:s=>s>=20, unlocked:false, note:'за 20 проказ' },
-      { id:'failday', name:'Неудачный день',        emoji:'💥', cond:()=>clicks>=5, unlocked:false, note:'5 кликов подряд' }
+      { id:'light',   name:'Лёгкая пакость',   emoji:'🪥', cond:s=>s>=5,  unlocked:false, note:'за 5 проказ' },
+      { id:'main',    name:'Главный проказник', emoji:'🏅', cond:s=>s>=10, unlocked:false, note:'за 10 проказ' },
+      { id:'camp',    name:'Главный пакостник', emoji:'👑', cond:s=>s>=20, unlocked:false, note:'за 20 проказ' },
+      { id:'failday', name:'Неудачный день',    emoji:'💥', cond:()=>explosionCount>=5, unlocked:false, note:'за 5 взрывов' }
     ];
 
     function randomMsg() {
@@ -127,21 +248,18 @@
       lastMsg = m;
       return m;
     }
-
     function showMessage(t) {
       msg.textContent = t;
       msg.classList.remove("show");
       void msg.offsetWidth;
       msg.classList.add("show");
     }
-
     function showAchievement(a) {
       popup.textContent = `${a.emoji} ${a.name} — ${a.note}`;
       popup.classList.add("show");
       achBox.innerHTML += `<span>${a.emoji}</span>`;
       setTimeout(()=>popup.classList.remove("show"),2000);
     }
-
     function checkAchievements() {
       achievements.forEach(a=>{
         if(!a.unlocked && a.cond(score)) {
@@ -150,7 +268,6 @@
         }
       });
     }
-
     function updateScore() {
       scoreBox.textContent = `Проказы с пастой: ${score}`;
       if(!firstRound && score>record) {
@@ -172,6 +289,7 @@
 
       clicks++;
       if(clicks>=3 && Math.random()<explosionChance) {
+        explosionCount++;
         img.style.display="none";
         vid.style.display="block";
         vid.currentTime=0;
@@ -180,11 +298,13 @@
 
         vid.onended = ()=>{
           overlay.classList.add("show");
-          finalText.textContent = explosionTexts[Math.floor(Math.random()*explosionTexts.length)];
+          finalText.textContent = explosionTexts[
+            Math.floor(Math.random()*explosionTexts.length)
+          ];
           setTimeout(()=>{
             finalText.style.display="block";
             resetBtn.style.display="block";
-            recBox.style.display = "block";  // показываем рекорд после первого сброса
+            recBox.style.display="block";
           },500);
         };
       } else {
