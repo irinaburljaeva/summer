@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Игра с пастой</title>
   <style>
-    /* Убираем синее выделение при клике */
+    /* Отключаем выделение при клике */
     img, video { -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; outline: none; }
 
     body {
@@ -57,17 +57,15 @@
       60%  { opacity: 1; transform: scale(1.1); }
       100% { opacity: 1; transform: scale(1); }
     }
-
     #message {
       margin-top: 20px;
       font-size: 20px;
       min-height: 1.2em;
-      opacity: 0;
-      transform: scale(0.8);
       display: inline-block;
       max-width: 80%;
       word-wrap: break-word;
       font-weight: bold;
+      opacity: 0;
     }
     #message.show {
       animation: popText 0.4s ease-out both;
@@ -88,8 +86,27 @@
       z-index: 12;
     }
     @keyframes fadeInBonus {
-      from { opacity: 0; transform: translate(-50%, -30px) scale(0.8); }
-      to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      from { opacity: 0; transform: translate(-50%,-30px) scale(0.8); }
+      to   { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+    }
+
+    /* Мини-челлендж */
+    #challenge {
+      position: absolute;
+      top: 10%;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 8px;
+      display: none;
+      z-index: 13;
+      font-size: 18px;
+      text-align: center;
+    }
+    #challenge-counter {
+      margin-top: 8px;
+      font-size: 24px;
+      font-weight: bold;
     }
 
     #pink-overlay {
@@ -120,7 +137,6 @@
       font-weight: bold;
       display: none;
       z-index: 11;
-      opacity: 0;
       animation: showFinal 0.5s forwards 0.3s;
     }
     @keyframes showFinal {
@@ -152,6 +168,10 @@
     <img id="toothpaste-img" src="intro.jpg" alt="Intro" draggable="false" />
     <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;"></video>
     <div id="message"></div>
+    <div id="challenge">
+      <div>Успей нажать 5 раз за 3 секунды!</div>
+      <div id="challenge-counter">0 / 5</div>
+    </div>
     <button id="reset-btn">Стереть пасту</button>
   </div>
   <div id="pink-overlay"></div>
@@ -169,14 +189,20 @@
           overlay   = document.getElementById("pink-overlay"),
           finalText = document.getElementById("final-text"),
           resetBtn  = document.getElementById("reset-btn"),
-          bonus     = document.getElementById("bonus");
+          bonus     = document.getElementById("bonus"),
+          challenge = document.getElementById("challenge"),
+          chCountEl = document.getElementById("challenge-counter");
 
-    let score        = 0,
-        record       = 0,
-        firstRound   = true,
-        clicks       = 0,
-        explosionChance = 0.05,
-        lastMsg      = "";
+    let score          = 0,
+        record         = 0,
+        firstRound     = true,
+        clicks         = 0,
+        explosionChance= 0.05,
+        lastMsg        = "",
+        inChallenge    = false,
+        challengeCount = 0,
+        challengeTimer = null,
+        superClick     = false;
 
     const texts = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
@@ -193,7 +219,6 @@
       { chance: 0.15, text: "Бонус! +2 проказы 🎁", add: 2 },
       { chance: 0.10, text: "Супер-клик! Следующий +3 🔥", superClick: true }
     ];
-    let superClick = false;
 
     function randomMsg() {
       let m;
@@ -221,15 +246,48 @@
       }
     }
 
+    function startChallenge() {
+      inChallenge = true;
+      challengeCount = 0;
+      chCountEl.textContent = `0 / 5`;
+      challenge.style.display = "block";
+      challengeTimer = setTimeout(endChallenge, 3000);
+    }
+
+    function endChallenge() {
+      inChallenge = false;
+      challenge.style.display = "none";
+      clearTimeout(challengeTimer);
+      if (challengeCount >= 5) {
+        score += 5;
+        updateScore();
+        showMessage("Челлендж пройден! +5 проказ 🎉");
+      } else {
+        showMessage("Не успели... 😢");
+      }
+    }
+
     img.addEventListener("mousedown", e => e.preventDefault());
 
     img.addEventListener("click", () => {
       img.classList.add("shake");
       setTimeout(()=> img.classList.remove("shake"), 300);
 
+      // intro только в первом раунде
       if (firstRound && img.src.includes("intro.jpg")) {
         img.src = "toothpaste.png";
         scoreBox.style.display = "block";
+        return;
+      }
+
+      // шанс запустить мини-челлендж (10%), если не в челлендже
+      if (!inChallenge && Math.random()<0.1) {
+        startChallenge();
+      }
+
+      if (inChallenge) {
+        challengeCount++;
+        chCountEl.textContent = `${challengeCount} / 5`;
         return;
       }
 
