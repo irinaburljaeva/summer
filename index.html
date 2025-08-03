@@ -26,6 +26,10 @@
       width: 200px;
       cursor: pointer;
       user-select: none;
+      outline: none;
+    }
+    #toothpaste-img:focus {
+      outline: none;
     }
 
     .shake {
@@ -53,7 +57,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255, 182, 193, 0.95); 
+      background: rgba(255, 182, 193, 0.95);
       display: none;
       z-index: 1000;
     }
@@ -82,20 +86,28 @@
     }
 
     #counter {
-      margin-top: 10px;
+      position: fixed;
+      top: 10px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 6px 12px;
+      border-radius: 8px;
       font-size: 16px;
       font-weight: bold;
       display: none;
+      z-index: 1200;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
   <div id="overlay"></div>
 
+  <div id="counter">Проказы с пастой: 0</div>
+
   <div id="container">
-    <img id="toothpaste-img" src="intro.jpg" alt="toothpaste" />
-    <div id="result-text"> </div>
-    <div id="counter">Проказы с пастой: 0</div>
+    <img id="toothpaste-img" src="intro.jpg" alt="toothpaste" tabindex="-1" />
+    <div id="result-text"></div>
   </div>
 
   <div id="result-container">
@@ -148,10 +160,12 @@
         counter.style.display = "block";
       }
 
-      if (Math.random() > 0.5 && clickCount >= 4) {
+      if (clickCount >= 4 && Math.random() > 0.5) {
         playExplosion();
       } else {
         resultText.textContent = getRandomMessage();
+        prankCount++;
+        counter.textContent = `Проказы с пастой: ${prankCount}`;
       }
     });
 
@@ -173,9 +187,11 @@
 
         setTimeout(() => {
           resultContainer.style.opacity = 1;
-          finalText.textContent = "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках, и в итоге вы измазались сами 🙈";
+          finalText.textContent =
+            "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках, и в итоге вы измазались сами 🙈";
           clearBtn.style.display = "inline-block";
-          prankCount++;
+
+          prankCount = 0;
           counter.textContent = `Проказы с пастой: ${prankCount}`;
         }, 500);
       };
