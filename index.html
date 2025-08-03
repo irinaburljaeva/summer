@@ -52,7 +52,7 @@
       display: none;
     }
 
-    /* Контейнер для иконок ачивок под рекордом */
+    /* Иконки ачивок под полем рекорда */
     #achievements {
       position: absolute;
       bottom: -6px;
@@ -63,7 +63,7 @@
       pointer-events: none;
     }
 
-    /* Картинка/видео */
+    /* Изображение и видео */
     #toothpaste-img,
     #toothpaste-video {
       width: 200px;
@@ -82,7 +82,7 @@
       75%     { transform: translateX(-4px); }
     }
 
-    /* Анимация текста и эмодзи */
+    /* Анимация текста/эмодзи */
     #message {
       margin-top: 20px;
       font-size: 20px;
@@ -100,7 +100,7 @@
       100% { opacity: 1; transform: scale(1); }
     }
 
-    /* Всплывашка награды */
+    /* Всплывашка ачивок */
     #achieve-popup {
       position: fixed;
       bottom: 20px;
@@ -232,9 +232,9 @@
     ];
 
     const achievements = [
-      { id:'light',   name:'Лёгкая пакость',   emoji:'🪥', cond:s=>s>=5,  unlocked:false, note:'за 5 проказ' },
-      { id:'main',    name:'Главный проказник', emoji:'🏅', cond:s=>s>=10, unlocked:false, note:'за 10 проказ' },
-      { id:'camp',    name:'Главный пакостник', emoji:'👑', cond:s=>s>=20, unlocked:false, note:'за 20 проказ' },
+      { id:'light',   name:'Лёгкая пакость',   emoji:'🪥', cond:s=>s>=5,          unlocked:false, note:'за 5 проказ' },
+      { id:'main',    name:'Главный проказник', emoji:'🏅', cond:s=>s>=10,         unlocked:false, note:'за 10 проказ' },
+      { id:'camp',    name:'Главный пакостник', emoji:'👑', cond:s=>s>=20,         unlocked:false, note:'за 20 проказ' },
       { id:'failday', name:'Неудачный день',    emoji:'💥', cond:()=>explosionCount>=5, unlocked:false, note:'за 5 взрывов' }
     ];
 
@@ -290,21 +290,20 @@
       clicks++;
       if(clicks>=3 && Math.random()<explosionChance) {
         explosionCount++;
-        img.style.display="none";
-        vid.style.display="block";
-        vid.currentTime=0;
+        img.style.display = "none";
+        vid.style.display = "block";
+        vid.currentTime = 0;
         vid.play();
-        scoreBox.style.display="none";
+        scoreBox.style.display = "none";
 
         vid.onended = ()=>{
           overlay.classList.add("show");
-          finalText.textContent = explosionTexts[
-            Math.floor(Math.random()*explosionTexts.length)
-          ];
+          finalText.textContent =
+            explosionTexts[Math.floor(Math.random()*explosionTexts.length)];
           setTimeout(()=>{
-            finalText.style.display="block";
-            resetBtn.style.display="block";
-            recBox.style.display="block";
+            finalText.style.display = "block";
+            resetBtn.style.display = "block";
+            recBox.style.display = "block";
           },500);
         };
       } else {
@@ -337,3 +336,4 @@
   </script>
 </body>
 </html>
+```0
