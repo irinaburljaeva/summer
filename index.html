@@ -14,9 +14,7 @@
       padding: 0;
       overflow-x: hidden;
     }
-    .container {
-      padding: 20px;
-    }
+    .container { padding: 20px; }
     .toothpaste {
       width: 200px;
       cursor: pointer;
@@ -24,9 +22,7 @@
       outline: none;
       transition: transform 0.2s;
     }
-    .shake {
-      animation: shake 0.3s;
-    }
+    .shake { animation: shake 0.3s; }
     @keyframes shake {
       0% { transform: translate(0, 0) rotate(0deg); }
       25% { transform: translate(-3px, 3px) rotate(-3deg); }
@@ -34,16 +30,21 @@
       75% { transform: translate(-3px, 3px) rotate(-3deg); }
       100% { transform: translate(0, 0) rotate(0deg); }
     }
-    #counter {
+    #counter-container {
       position: fixed;
       top: 15px;
       right: 15px;
+      text-align: right;
+      display: none;
+    }
+    #counter, #record {
       background: #CF2C02;
       color: white;
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 20px;
       font-weight: bold;
-      display: none;
+      margin-top: 5px;
+      display: inline-block;
     }
     .message {
       margin-top: 20px;
@@ -100,11 +101,16 @@
   </style>
 </head>
 <body>
-  <div id="counter">Проказы с пастой: 0</div>
+  <div id="counter-container">
+    <div id="counter">Проказы с пастой: 0</div>
+    <div id="record" style="display:none;">Рекорд: 0</div>
+  </div>
+
   <div class="container">
     <img id="toothpasteImg" class="toothpaste" src="intro.jpg" alt="Тюбик пасты">
     <div class="message" id="message"></div>
   </div>
+
   <div id="overlay"></div>
   <div id="finalText">
     <p>Ой! Кто-то переусердствовал 🙈<br>Тюбик взорвался прямо в руках!</p>
@@ -114,7 +120,9 @@
   <script>
     const toothpasteImg = document.getElementById("toothpasteImg");
     const message = document.getElementById("message");
+    const counterContainer = document.getElementById("counter-container");
     const counter = document.getElementById("counter");
+    const recordBox = document.getElementById("record");
     const overlay = document.getElementById("overlay");
     const finalText = document.getElementById("finalText");
     const resetBtn = document.getElementById("resetBtn");
@@ -177,13 +185,23 @@
       }, 100);
     }
 
+    function updateRecord() {
+      if (prankCount > record) {
+        record = prankCount;
+        recordBox.style.display = "inline-block";
+        recordBox.textContent = "Рекорд: " + record;
+        launchConfetti();
+        if (Math.random() < 0.3) showPopup("🏆 Новый рекорд!");
+      }
+    }
+
     function handleClick() {
       toothpasteImg.classList.add("shake");
       setTimeout(() => toothpasteImg.classList.remove("shake"), 300);
 
       if (toothpasteImg.src.includes("intro.jpg")) {
         toothpasteImg.src = "toothpaste.png";
-        counter.style.display = "block";
+        counterContainer.style.display = "block";
         message.textContent = randomMessage();
         prankCount++;
         counter.textContent = "Проказы с пастой: " + prankCount;
@@ -201,19 +219,13 @@
         triggerExplosion();
         firstRound = false;
         clickCount = 0;
-
-        if (prankCount > record) {
-          record = prankCount;
-          launchConfetti();
-          if (Math.random() < 0.2) showPopup("🎉 Новый рекорд!");
-        }
+        updateRecord();
         prankCount = 0;
         counter.textContent = "Проказы с пастой: 0";
       } else {
         prankCount++;
         counter.textContent = "Проказы с пастой: " + prankCount;
 
-        // бонус
         if (Math.random() < 0.2) {
           const bonus = Math.random() < 0.5 ? 1 : 2;
           prankCount += bonus;
@@ -221,7 +233,6 @@
           showPopup(`+${bonus} бонусных очков 🎁`);
         }
 
-        // ачивки
         if (prankCount === 5) showPopup("🎈 Ачивка: Проказник!");
         if (prankCount === 10) showPopup("🏅 Ачивка: Мастер пасты!");
         if (prankCount === 15) showPopup("👑 Ачивка: Король шалостей!");
