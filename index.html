@@ -31,6 +31,7 @@
     }
     #score-container { top: 20px; right: 20px; }
     #record-container { top: 20px; left: 20px; }
+
     #message {
       margin-top: 20px;
       font-size: 20px;
@@ -46,6 +47,7 @@
       opacity: 1;
       transform: scale(1);
     }
+
     #bonus {
       position: fixed;
       top: 50%;
@@ -61,15 +63,20 @@
       z-index: 12;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, -30px); }
-      to { opacity: 1; transform: translate(-50%, -50%); }
+      from { opacity: 0; transform: translate(-50%, -30px) scale(0.9); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     }
+
     #toothpaste-img, #toothpaste-video {
       width: 200px;
       cursor: pointer;
       user-select: none;
+      -webkit-tap-highlight-color: transparent; /* убирает синее выделение */
     }
-    #toothpaste-img:focus, #toothpaste-video:focus { outline: none; }
+    #toothpaste-img:focus, #toothpaste-video:focus {
+      outline: none;
+    }
+
     .shake { animation: shake 0.3s; }
     @keyframes shake {
       0% { transform: translate(0,0) }
@@ -78,6 +85,7 @@
       75% { transform: translate(-3px,0) }
       100% { transform: translate(0,0) }
     }
+
     #pink-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -89,6 +97,7 @@
     }
     #pink-overlay.show { animation: fadeInOverlay 1.5s forwards; }
     @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+
     #final-text {
       position: fixed;
       top: 50%; left: 50%;
@@ -106,6 +115,7 @@
     @keyframes showText {
       to { opacity: 1; }
     }
+
     #reset-btn {
       margin-top: 20px;
       padding: 10px 20px;
@@ -128,7 +138,7 @@
   <div id="game-container">
     <div id="score-container">Проказы с пастой: 0</div>
     <div id="record-container">Рекорд: 0</div>
-    <img id="toothpaste-img" src="intro.jpg" alt="Toothpaste" />
+    <img id="toothpaste-img" src="intro.jpg" alt="Toothpaste" tabindex="-1" />
     <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;"></video>
     <div id="message"></div>
     <button id="reset-btn">Стереть пасту</button>
@@ -171,8 +181,9 @@
     function randomMessage() {
       let msg;
       do {
-        msg = Math.random() < 0.3 ? emojis[Math.floor(Math.random()*emojis.length)] :
-                                    messages[Math.floor(Math.random()*messages.length)];
+        msg = Math.random() < 0.3
+          ? emojis[Math.floor(Math.random() * emojis.length)]
+          : messages[Math.floor(Math.random() * messages.length)];
       } while (msg === lastMessage);
       lastMessage = msg;
       return msg;
@@ -243,7 +254,7 @@
         const newMsg = randomMessage();
         message.textContent = newMsg;
         message.classList.remove("show");
-        setTimeout(()=>message.classList.add("show"),10);
+        setTimeout(() => message.classList.add("show"), 10);
 
         explosionChance = Math.min(0.5, explosionChance + 0.05);
       }
@@ -260,7 +271,7 @@
 
       toothpasteVideo.onended = () => {
         overlay.classList.add("show");
-        setTimeout(()=>{
+        setTimeout(() => {
           finalText.style.display = "block";
           resetBtn.style.display = "block";
         }, 500);
