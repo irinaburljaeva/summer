@@ -14,11 +14,14 @@
       height: 100vh;
       margin: 0;
       font-family: Arial, sans-serif;
+      overflow: hidden;
+      position: relative;
     }
     #toothpaste-container {
       position: relative;
       width: 250px;
       cursor: pointer;
+      z-index: 2;
     }
     #toothpaste-container img,
     #toothpaste-container video {
@@ -40,6 +43,35 @@
       font-size: 18px;
       text-align: center;
       max-width: 300px;
+      z-index: 2;
+    }
+    .emoji {
+      position: fixed;
+      font-size: 2rem;
+      animation: floatUp 1.5s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-120px) scale(1.5); opacity: 0; }
+    }
+
+    /* Размазывание пасты */
+    #paste-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f8bcd8; /* пастельно-розовый */
+      opacity: 0;
+      z-index: 1;
+      animation: smear 1.5s forwards;
+    }
+    @keyframes smear {
+      0% { opacity: 0; transform: scale(0.5) rotate(0deg); border-radius: 50%; }
+      50% { opacity: 0.7; transform: scale(1.1) rotate(10deg); border-radius: 30%; }
+      100% { opacity: 0.9; transform: scale(1) rotate(0deg); border-radius: 0; }
     }
   </style>
 </head>
@@ -64,18 +96,35 @@
       "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали ее пастой 😆"
     ];
 
+    const emojis = ["😁", "😏", "😜", "🙈", "🎉", "💦"];
+
     tubeImg.addEventListener("click", () => {
       clickCount++;
       tubeImg.classList.add("shake");
       setTimeout(() => tubeImg.classList.remove("shake"), 300);
 
-      if (clickCount >= 3) {
+      if (clickCount >= 4 && Math.random() < 0.5) {
         playExplosion();
       } else {
-        const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-        messageBox.textContent = randomMsg;
+        if (Math.random() < 0.5) {
+          const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+          messageBox.textContent = randomMsg;
+        } else {
+          spawnEmoji();
+          messageBox.textContent = "";
+        }
       }
     });
+
+    function spawnEmoji() {
+      const emoji = document.createElement("div");
+      emoji.className = "emoji";
+      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      emoji.style.left = Math.random() * 80 + 10 + "vw";
+      emoji.style.bottom = "50px";
+      document.body.appendChild(emoji);
+      setTimeout(() => emoji.remove(), 1500);
+    }
 
     function playExplosion() {
       const video = document.createElement("video");
@@ -83,16 +132,24 @@
       video.autoplay = true;
       video.playsInline = true;
       video.onended = () => {
+        showPasteOverlay();
         messageBox.textContent =
           "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈";
-        clickCount = 0; // сбрасываем счётчик
-        container.innerHTML = ""; // убираем видео
-        container.appendChild(tubeImg); // возвращаем тюбик
+        clickCount = 0;
+        container.innerHTML = "";
+        container.appendChild(tubeImg);
       };
 
       container.innerHTML = "";
       container.appendChild(video);
       messageBox.textContent = "";
+    }
+
+    function showPasteOverlay() {
+      const overlay = document.createElement("div");
+      overlay.id = "paste-overlay";
+      document.body.appendChild(overlay);
+      setTimeout(() => overlay.remove(), 2000); // паста исчезает через 2 сек
     }
   </script>
 </body>
