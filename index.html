@@ -1,145 +1,83 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Весёлый тюбик пасты</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Выдавливание пасты</title>
   <style>
     body {
+      background: #ffffff;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
-      background: #f0f4f8;
       margin: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
     }
-
-    .toothpaste {
-      width: 200px;
+    #toothpaste-container {
+      position: relative;
+      width: 250px;
       cursor: pointer;
-      transition: transform 0.2s;
     }
-
-    .toothpaste:active {
-      transform: scale(0.95);
+    #toothpaste-container img,
+    #toothpaste-container video {
+      width: 100%;
+      display: block;
     }
-
-    video {
-      display: none;
-      width: 200px;
-      margin-top: 10px;
-    }
-
-    .paste-spot {
+    .splat {
       position: absolute;
-      background: #FFB6C1; /* пастельно-розовый */
       border-radius: 50%;
-      opacity: 0.9;
-      transform: scale(0);
-      pointer-events: none;
-      filter: blur(2px);
-      animation: grow 0.5s forwards;
+      opacity: 0.8;
+      background-color: #f8c7d4;
+      animation: splat 0.8s ease-out forwards;
     }
-
-    @keyframes grow {
-      0% { transform: scale(0); opacity: 0.8; }
-      50% { transform: scale(1.2); opacity: 1; }
-      100% { transform: scale(1); opacity: 0.9; }
-    }
-
-    .popup {
-      position: fixed;
-      bottom: 30px;
-      background: white;
-      padding: 15px 25px;
-      border-radius: 8px;
-      font-size: 18px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      opacity: 0;
-      transform: translateY(20px);
-      animation: popupShow 0.6s forwards;
-    }
-
-    @keyframes popupShow {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    @keyframes splat {
+      0% { transform: scale(0); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <img src="toothpaste.png" class="toothpaste" id="tube" alt="Тюбик пасты" />
-  <video id="pasteVideo" src="toothpaste.mp4"></video>
+
+  <div id="toothpaste-container">
+    <img id="tube" src="toothpaste.png" alt="Тюбик пасты">
+  </div>
 
   <script>
-    const tube = document.getElementById("tube");
-    const pasteVideo = document.getElementById("pasteVideo");
+    const container = document.getElementById('toothpaste-container');
+    const tubeImg = document.getElementById('tube');
 
-    const names = [
-      "Катю",
-      "Свету",
-      "Машу",
-      "Иру",
-      "Дашу",
-      "Настю",
-      "Полину",
-      "Вику",
-      "Аню",
-      "Лену"
-    ];
-
-    tube.addEventListener("click", () => {
-      pasteVideo.style.display = "block";
-      pasteVideo.currentTime = 0;
-      pasteVideo.play();
-
-      pasteVideo.onended = () => {
-        explodePaste();
-        showPopup();
-        pasteVideo.style.display = "none";
-      };
+    tubeImg.addEventListener('click', () => {
+      // Заменяем изображение на видео
+      const video = document.createElement('video');
+      video.src = 'toothpaste.mp4';
+      video.autoplay = true;
+      video.playsInline = true;
+      video.onended = () => showSplats();
+      container.innerHTML = '';
+      container.appendChild(video);
     });
 
-    function explodePaste() {
+    function showSplats() {
       for (let i = 0; i < 20; i++) {
-        const spot = document.createElement("div");
-        spot.className = "paste-spot";
-
-        const size = Math.random() * 80 + 30;
-        spot.style.width = size + "px";
-        spot.style.height = size + "px";
-
-        spot.style.left = Math.random() * window.innerWidth + "px";
-        spot.style.top = Math.random() * window.innerHeight + "px";
-
-        document.body.appendChild(spot);
-
-        setTimeout(() => {
-          spot.style.transition = "opacity 1s ease";
-          spot.style.opacity = 0;
-          setTimeout(() => spot.remove(), 1000);
-        }, 2500 + Math.random() * 1000);
+        const splat = document.createElement('div');
+        splat.className = 'splat';
+        splat.style.width = splat.style.height = `${20 + Math.random() * 40}px`;
+        splat.style.left = `${Math.random() * 200}px`;
+        splat.style.top = `${Math.random() * 200}px`;
+        container.appendChild(splat);
+        setTimeout(() => splat.remove(), 1000);
       }
+      setTimeout(() => {
+        alert(`Вы намазали пастой ${getRandomName()}! 😂`);
+      }, 500);
     }
 
-    function showPopup() {
-      const popup = document.createElement("div");
-      popup.className = "popup";
-      const randomName = names[Math.floor(Math.random() * names.length)];
-      popup.textContent = `Вы намазали пастой ${randomName}! 😂`;
-
-      document.body.appendChild(popup);
-
-      setTimeout(() => {
-        popup.style.transition = "opacity 1s ease";
-        popup.style.opacity = 0;
-        setTimeout(() => popup.remove(), 1000);
-      }, 3000);
+    function getRandomName() {
+      const names = ['подругу', 'друга', 'соседа', 'тренера', 'брата', 'сестру'];
+      return names[Math.floor(Math.random() * names.length)];
     }
   </script>
+
 </body>
 </html>
