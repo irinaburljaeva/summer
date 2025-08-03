@@ -16,13 +16,27 @@
       font-family: Arial, sans-serif;
     }
 
+    #wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     #toothpaste-img, #toothpaste-video {
       max-width: 250px;
       cursor: pointer;
       outline: none;
     }
 
-    #toothpaste-img:focus { outline: none; }
+    #paste-small {
+      position: absolute;
+      bottom: -30px;
+      display: none;
+      max-width: 180px;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
 
     #paste-overlay {
       position: fixed;
@@ -65,7 +79,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      display: none; /* кнопка скрыта по умолчанию */
+      display: none;
     }
 
     .shake {
@@ -82,8 +96,11 @@
 </head>
 <body>
 
-  <img id="toothpaste-img" src="intro.jpg" alt="Зубная паста" />
-  <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;" muted></video>
+  <div id="wrapper">
+    <img id="toothpaste-img" src="intro.jpg" alt="Зубная паста" />
+    <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;" muted></video>
+    <img id="paste-small" src="paste.png" alt="Выдавленная паста" />
+  </div>
 
   <div id="paste-overlay"></div>
 
@@ -95,6 +112,7 @@
   <script>
     const toothpasteImg = document.getElementById("toothpaste-img");
     const toothpasteVideo = document.getElementById("toothpaste-video");
+    const pasteSmall = document.getElementById("paste-small");
     const pasteOverlay = document.getElementById("paste-overlay");
     const finalContainer = document.getElementById("final-container");
     const finalText = document.getElementById("final-text");
@@ -114,15 +132,17 @@
 
     toothpasteImg.addEventListener("click", () => {
       if (introShown) {
-        toothpasteImg.src = "toothpaste.jpg";
+        toothpasteImg.src = "toothpaste.png";
         introShown = false;
-        showRandomMessage(false);
         return;
       }
 
       clickCount++;
       toothpasteImg.classList.add("shake");
       setTimeout(() => toothpasteImg.classList.remove("shake"), 400);
+
+      pasteSmall.style.display = "block";
+      setTimeout(() => pasteSmall.style.opacity = "1", 50);
 
       if (clickCount >= 4 && Math.random() < 0.6) {
         startExplosion();
@@ -138,9 +158,7 @@
 
       if (!withButton) {
         clearBtn.style.display = "none";
-        setTimeout(() => {
-          finalContainer.style.display = "none";
-        }, 2500); // текст исчезнет через 2.5 секунды
+        setTimeout(() => { finalContainer.style.display = "none"; }, 2500);
       } else {
         clearBtn.style.display = "block";
       }
@@ -171,6 +189,8 @@
         clickCount = 0;
         finalContainer.style.display = "none";
         clearBtn.style.display = "none";
+        pasteSmall.style.display = "none";
+        pasteSmall.style.opacity = "0";
       }, 600);
     });
   </script>
