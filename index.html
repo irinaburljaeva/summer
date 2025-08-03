@@ -54,12 +54,13 @@
       padding: 10px 20px;
       border-radius: 12px;
       display: none;
-      animation: fadeIn 0.5s forwards;
+      animation: scaleFade 0.6s forwards;
       z-index: 12;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, -30px); }
-      to { opacity: 1; transform: translate(-50%, -50%); }
+    @keyframes scaleFade {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     }
     #toothpaste-img, #toothpaste-video {
       width: 200px;
@@ -145,7 +146,7 @@
     const resetBtn = document.getElementById("reset-btn");
     const bonusBox = document.getElementById("bonus");
 
-    let score = 0, record = 0, firstRound = true, clickCount = 0;
+    let score = 0, record = 0, bestScore = 0, firstRound = true, clickCount = 0;
     let explosionChance = 0.05, lastMessage = "", confettiShown = false;
 
     const messages = [
@@ -177,10 +178,15 @@
 
     function updateScore() {
       scoreContainer.textContent = `Проказы с пастой: ${score}`;
-      if (!firstRound && score % 5 === 0 && score !== 0) {
-        record = Math.max(record, score);
-        recordContainer.textContent = `Рекорд: ${record}`;
-        if (!confettiShown) { launchConfetti(); confettiShown = true; }
+      if (!firstRound) {
+        if (score > bestScore) {
+          bestScore = score;
+          recordContainer.textContent = `Рекорд: ${bestScore}`;
+          if (!confettiShown && bestScore % 5 === 0) {
+            launchConfetti();
+            confettiShown = true;
+          }
+        }
       }
     }
 
@@ -219,15 +225,17 @@
         let points = superClick ? 3 : 1;
         superClick = false;
 
-        bonuses.forEach(b => {
-          if (Math.random() < b.chance) {
-            bonusBox.textContent = b.text;
-            bonusBox.style.display = "block";
-            setTimeout(() => bonusBox.style.display = "none", 1500);
-            if (b.superClick) superClick = true;
-            else points += b.add;
-          }
-        });
+        if (!firstRound) {
+          bonuses.forEach(b => {
+            if (Math.random() < b.chance) {
+              bonusBox.textContent = b.text;
+              bonusBox.style.display = "block";
+              setTimeout(() => bonusBox.style.display = "none", 1500);
+              if (b.superClick) superClick = true;
+              else points += b.add;
+            }
+          });
+        }
 
         score += points;
         updateScore();
