@@ -3,161 +3,178 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Весёлая паста</title>
+  <title>Игра с тюбиком пасты</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      min-height: 100vh;
+      background: #fff;
       font-family: Arial, sans-serif;
       text-align: center;
+      margin: 0;
+      padding: 0;
       overflow-x: hidden;
+    }
+    .container {
+      padding: 20px;
     }
     .toothpaste {
       width: 200px;
       cursor: pointer;
       user-select: none;
       outline: none;
-      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.2s;
     }
     .shake {
       animation: shake 0.3s;
     }
     @keyframes shake {
-      0% { transform: translate(0,0) rotate(0deg); }
-      25% { transform: translate(-3px,0) rotate(-3deg); }
-      50% { transform: translate(3px,0) rotate(3deg); }
-      75% { transform: translate(-3px,0) rotate(-3deg); }
-      100% { transform: translate(0,0) rotate(0deg); }
-    }
-    #message {
-      margin-top: 20px;
-      font-size: 20px;
-      font-weight: 500;
-      position: relative;
-      z-index: 10;
+      0% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(-3px, 3px) rotate(-3deg); }
+      50% { transform: translate(3px, -3px) rotate(3deg); }
+      75% { transform: translate(-3px, 3px) rotate(-3deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
     }
     #counter {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 18px;
-      font-weight: bold;
+      position: fixed;
+      top: 15px;
+      right: 15px;
       background: #CF2C02;
       color: white;
-      padding: 8px 14px;
-      border-radius: 8px;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: bold;
       display: none;
-      z-index: 10;
     }
-    #video {
-      width: 220px;
-      display: none;
-      outline: none;
+    .message {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
     }
     #overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: pink;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 5;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255,192,203,0); 
+      z-index: 10;
+      display: none;
+    }
+    #finalText {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      font-size: 20px;
+      display: none;
+      z-index: 20;
     }
     #resetBtn {
-      display: none;
-      margin-top: 20px;
+      margin-top: 15px;
       padding: 10px 20px;
-      font-size: 18px;
       background: #CF2C02;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
-      z-index: 10;
-      position: relative;
     }
-    .emoji {
-      position: absolute;
+    .popup {
+      position: fixed;
       bottom: 30px;
-      font-size: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #CF2C02;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
       opacity: 0;
-      animation: floatUp 1.5s ease-out forwards;
-      z-index: 10;
+      animation: fadeUp 2s forwards;
+      font-weight: bold;
     }
-    @keyframes floatUp {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(-50px); opacity: 0; }
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translate(-50%, 20px); }
+      20% { opacity: 1; transform: translate(-50%, 0); }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -20px); }
     }
   </style>
 </head>
 <body>
-
   <div id="counter">Проказы с пастой: 0</div>
-  <img id="toothpasteImg" src="intro.jpg" class="toothpaste" alt="toothpaste" />
-  <video id="video" src="toothpaste.mp4"></video>
-  <div id="message"></div>
-  <button id="resetBtn">Стереть пасту</button>
+  <div class="container">
+    <img id="toothpasteImg" class="toothpaste" src="intro.jpg" alt="Тюбик пасты">
+    <div class="message" id="message"></div>
+  </div>
   <div id="overlay"></div>
+  <div id="finalText">
+    <p>Ой! Кто-то переусердствовал 🙈<br>Тюбик взорвался прямо в руках!</p>
+    <button id="resetBtn">Стереть пасту</button>
+  </div>
 
   <script>
     const toothpasteImg = document.getElementById("toothpasteImg");
-    const video = document.getElementById("video");
     const message = document.getElementById("message");
+    const counter = document.getElementById("counter");
     const overlay = document.getElementById("overlay");
+    const finalText = document.getElementById("finalText");
     const resetBtn = document.getElementById("resetBtn");
-    const counterEl = document.getElementById("counter");
-
-    let clickCount = 0;
-    let score = 0;
-    let explosionChance = 0.05; 
-    let chanceIncrease = 0.07;
-    let firstExplosion = true;
-    let lastMessage = "";
 
     const messages = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
       "Шалость удалась! Вы измазали пастой вашего соседа 😁",
       "Вы измазали пастой куратора Сашу 😅",
-      "Кажется кто-то измазал пастой тренера Машу...и да, это были Вы 😏",
+      "Кажется кто-то измазал пастой тренера Машу... и да, это были вы 😏",
       "Вас хотели измазать пастой, но вы оказались быстрее!",
-      "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали её пастой",
+      "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали её пастой 😆",
       "Вы измазали пастой другого шагателя!",
-      "Вы измазали пастой зеркало в ванной"
+      "Вы измазали пастой зеркало в ванной 🪞",
+      "😂", "🤣", "😜", "🙈"
     ];
-    const emojis = ["😂", "😜", "🙈", "🤣", "🤭", "😁"];
 
-    function getRandomMessage() {
-      let newMsg;
+    let lastMessage = "";
+    let prankCount = 0;
+    let record = 0;
+    let clickCount = 0;
+    let firstRound = true;
+
+    function showPopup(text) {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.textContent = text;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 2000);
+    }
+
+    function launchConfetti() {
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        colors: ['#CF2C02','#FFBA08','#E85D04','#FFFFFF']
+      });
+    }
+
+    function randomMessage() {
+      let newMessage;
       do {
-        newMsg = messages[Math.floor(Math.random() * messages.length)];
-      } while (newMsg === lastMessage);
-      lastMessage = newMsg;
-      return newMsg;
+        newMessage = messages[Math.floor(Math.random() * messages.length)];
+      } while (newMessage === lastMessage);
+      lastMessage = newMessage;
+      return newMessage;
     }
 
-    function showEmoji() {
-      const emoji = document.createElement("div");
-      emoji.className = "emoji";
-      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      emoji.style.left = Math.random() * 80 + 10 + "vw";
-      document.body.appendChild(emoji);
-      setTimeout(() => emoji.remove(), 1500);
-    }
-
-    function shouldExplode() {
-      if (firstExplosion) {
-        if (clickCount < 3) return false;
-        firstExplosion = false;
-      }
-      return Math.random() < explosionChance;
+    function triggerExplosion() {
+      toothpasteImg.style.display = "none";
+      overlay.style.display = "block";
+      overlay.style.background = "rgba(255,192,203,0)";
+      let opacity = 0;
+      const fade = setInterval(() => {
+        opacity += 0.05;
+        overlay.style.background = `rgba(255,192,203,${opacity})`;
+        if (opacity >= 1) {
+          clearInterval(fade);
+          finalText.style.display = "block";
+        }
+      }, 100);
     }
 
     function handleClick() {
@@ -166,66 +183,59 @@
 
       if (toothpasteImg.src.includes("intro.jpg")) {
         toothpasteImg.src = "toothpaste.png";
-        counterEl.style.display = "block";
-        clickCount++;
-        score++;
-        counterEl.textContent = "Проказы с пастой: " + score;
-        message.textContent = getRandomMessage();
+        counter.style.display = "block";
+        message.textContent = randomMessage();
+        prankCount++;
+        counter.textContent = "Проказы с пастой: " + prankCount;
         return;
       }
 
       clickCount++;
+      message.textContent = randomMessage();
 
-      if (shouldExplode()) {
-        playExplosion();
-      } else {
-        score++;
-        counterEl.textContent = "Проказы с пастой: " + score;
-        if (Math.random() < 0.3) {
-          showEmoji();
-          message.textContent = "";
-        } else {
-          message.textContent = getRandomMessage();
+      let explodeChance = firstRound
+        ? (clickCount >= 3 && clickCount <= 4 ? 1 : 0)
+        : Math.min(0.1 + 0.1 * clickCount, 0.5);
+
+      if (Math.random() < explodeChance) {
+        triggerExplosion();
+        firstRound = false;
+        clickCount = 0;
+
+        if (prankCount > record) {
+          record = prankCount;
+          launchConfetti();
+          if (Math.random() < 0.2) showPopup("🎉 Новый рекорд!");
         }
-        explosionChance += chanceIncrease;
-        if (explosionChance > 0.8) explosionChance = 0.8;
+        prankCount = 0;
+        counter.textContent = "Проказы с пастой: 0";
+      } else {
+        prankCount++;
+        counter.textContent = "Проказы с пастой: " + prankCount;
+
+        // бонус
+        if (Math.random() < 0.2) {
+          const bonus = Math.random() < 0.5 ? 1 : 2;
+          prankCount += bonus;
+          counter.textContent = "Проказы с пастой: " + prankCount;
+          showPopup(`+${bonus} бонусных очков 🎁`);
+        }
+
+        // ачивки
+        if (prankCount === 5) showPopup("🎈 Ачивка: Проказник!");
+        if (prankCount === 10) showPopup("🏅 Ачивка: Мастер пасты!");
+        if (prankCount === 15) showPopup("👑 Ачивка: Король шалостей!");
       }
     }
 
-    function playExplosion() {
-      toothpasteImg.style.display = "none";
-      video.style.display = "block";
-      message.textContent = "";
-      video.play();
-
-      video.onended = () => {
-        let opacity = 0;
-        const fade = setInterval(() => {
-          opacity += 0.05;
-          overlay.style.opacity = opacity;
-          if (opacity >= 1) clearInterval(fade);
-        }, 100);
-
-        setTimeout(() => {
-          message.textContent = "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках, и в итоге вы измазались сами 🙈";
-          resetBtn.style.display = "inline-block";
-        }, 1500);
-
-        score = 0;
-        counterEl.textContent = "Проказы с пастой: " + score;
-        explosionChance = 0.05;
-      };
-    }
-
     resetBtn.addEventListener("click", () => {
-      overlay.style.opacity = 0;
-      resetBtn.style.display = "none";
+      overlay.style.display = "none";
+      finalText.style.display = "none";
       toothpasteImg.style.display = "block";
-      video.style.display = "none";
-      message.textContent = "";
     });
 
     toothpasteImg.addEventListener("click", handleClick);
+    toothpasteImg.addEventListener("mousedown", e => e.preventDefault());
   </script>
 </body>
 </html>
