@@ -37,7 +37,7 @@
 
     .svg-text path {
       fill: none;
-      stroke: #00BFFF; /* Голубая паста */
+      stroke: #00BFFF;
       stroke-width: 6px;
       stroke-linecap: round;
       stroke-linejoin: round;
@@ -52,25 +52,21 @@
       }
     }
 
-    .message {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #CF2C02;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      opacity: 0;
-      transition: opacity 0.5s;
-      text-align: center;
-    }
-
-    .paste {
+    .paste-spot {
       position: absolute;
       background: #00BFFF;
       border-radius: 50%;
       opacity: 0.9;
+      transform: scale(0);
       pointer-events: none;
+      filter: blur(2px);
+      animation: grow 0.5s forwards;
+    }
+
+    @keyframes grow {
+      0% { transform: scale(0); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.9; }
     }
   </style>
 </head>
@@ -81,24 +77,15 @@
     <path id="pathText" d=""></path>
   </svg>
 
-  <div class="message" id="message"></div>
-
   <script>
     const tube = document.getElementById('tube');
     const svgText = document.getElementById('svgText');
     const pathText = document.getElementById('pathText');
-    const message = document.getElementById('message');
 
-    // Контуры для разных слов (примерно набросанные линии)
     const words = [
       {text:"ШАГАЙ!", path:"M40 150 L40 50 M40 100 L100 100 M120 150 L120 50 L180 50 L180 150 M200 150 L200 50 L260 150 L320 50 L320 150 M340 150 L340 50 L400 50 L400 150 M430 150 L460 50 L490 150 M520 50 L520 150"},
       {text:"УЛЫБАЙСЯ!", path:"M40 150 Q 80 50, 120 150 M150 50 L150 150 M180 50 L180 150 M220 50 L220 150 M260 50 L260 150 M300 150 Q 340 50, 380 150 M400 50 L400 150 M440 50 L440 150 M480 50 L480 150"},
       {text:"ЛАГЕРЬ!", path:"M40 50 L40 150 M80 150 L110 50 L140 150 M160 50 L160 150 M200 150 L200 50 L260 50 L260 150 M300 50 L300 150 M340 50 L340 150"}
-    ];
-
-    const prankMessages = [
-      "Ты намазал пастой друга! 😂",
-      "Осторожно, мажешь всех подряд! 🤭"
     ];
 
     tube.addEventListener('click', () => {
@@ -106,8 +93,6 @@
 
       if (random === 0) {
         showPasteWord();
-      } else if (random === 1) {
-        showMessage(prankMessages[Math.floor(Math.random() * prankMessages.length)]);
       } else {
         explodePaste();
       }
@@ -121,7 +106,7 @@
       pathText.style.strokeDasharray = 2000;
       pathText.style.strokeDashoffset = 2000;
       pathText.style.animation = "none";
-      void pathText.offsetWidth; // сброс анимации
+      void pathText.offsetWidth;
       pathText.style.animation = "draw 3s forwards";
 
       setTimeout(() => {
@@ -129,34 +114,27 @@
       }, 4000);
     }
 
-    function showMessage(text) {
-      message.textContent = text;
-      message.style.opacity = 1;
-      setTimeout(() => (message.style.opacity = 0), 2000);
-    }
-
     function explodePaste() {
-      for (let i = 0; i < 30; i++) {
-        const paste = document.createElement('div');
-        paste.className = 'paste';
-        paste.style.width = paste.style.height = Math.random() * 20 + 10 + 'px';
-        paste.style.left = window.innerWidth / 2 + 'px';
-        paste.style.top = window.innerHeight / 2 + 'px';
-        document.body.appendChild(paste);
+      for (let i = 0; i < 20; i++) {
+        const spot = document.createElement('div');
+        spot.className = 'paste-spot';
 
-        const angle = Math.random() * Math.PI * 2;
-        const distance = Math.random() * 300;
+        const size = Math.random() * 80 + 30;
+        spot.style.width = size + 'px';
+        spot.style.height = size + 'px';
 
-        paste.animate([
-          { transform: `translate(0, 0)`, opacity: 1 },
-          { transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`, opacity: 0 }
-        ], {
-          duration: 1000 + Math.random() * 500,
-          easing: 'ease-out',
-          fill: 'forwards'
-        });
+        spot.style.left = Math.random() * window.innerWidth + 'px';
+        spot.style.top = Math.random() * window.innerHeight + 'px';
 
-        setTimeout(() => paste.remove(), 1500);
+        spot.style.transform = `scale(${Math.random() * 0.5}) rotate(${Math.random() * 360}deg)`;
+
+        document.body.appendChild(spot);
+
+        setTimeout(() => {
+          spot.style.transition = "opacity 1s ease";
+          spot.style.opacity = 0;
+          setTimeout(() => spot.remove(), 1000);
+        }, 2500 + Math.random() * 1000);
       }
     }
   </script>
