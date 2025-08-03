@@ -73,8 +73,7 @@
       cursor: pointer;
       user-select: none;
     }
-    #toothpaste-img:focus, #toothpaste-video:focus { outline: none; }
-    img, video { outline: none; }
+    img, video { outline: none; -webkit-user-drag: none; }
 
     .shake { animation: shake 0.3s; }
     @keyframes shake {
@@ -111,9 +110,6 @@
       opacity: 0;
       animation: showText 0.5s forwards 0.3s;
     }
-    @keyframes showText {
-      to { opacity: 1; }
-    }
 
     #reset-btn {
       margin-top: 20px;
@@ -137,7 +133,7 @@
   <div id="game-container">
     <div id="score-container">Проказы с пастой: 0</div>
     <div id="record-container">Рекорд: 0</div>
-    <img id="toothpaste-img" src="intro.jpg" alt="Toothpaste" />
+    <img id="toothpaste-img" src="intro.jpg" alt="Toothpaste" draggable="false" />
     <video id="toothpaste-video" src="toothpaste.mp4" style="display:none;"></video>
     <div id="message"></div>
     <button id="reset-btn">Стереть пасту</button>
@@ -213,16 +209,19 @@
       }
     }
 
-    toothpasteImg.addEventListener("mousedown", e => e.preventDefault()); // убирает выделение
+    toothpasteImg.addEventListener("mousedown", e => e.preventDefault());
 
     toothpasteImg.addEventListener("click", () => {
       toothpasteImg.classList.add("shake");
       setTimeout(()=>toothpasteImg.classList.remove("shake"),300);
 
-      if (toothpasteImg.src.includes("intro.jpg")) {
+      if (firstRound && toothpasteImg.src.includes("intro.jpg")) {
         toothpasteImg.src = "toothpaste.png";
         scoreContainer.style.display = "block";
         return;
+      } else if (!firstRound && toothpasteImg.src.includes("intro.jpg")) {
+        toothpasteImg.src = "toothpaste.png";
+        scoreContainer.style.display = "block";
       }
 
       clickCount++;
@@ -245,6 +244,7 @@
 
         score += points;
         updateScore();
+
         const newMsg = randomMessage();
         message.textContent = newMsg;
         message.classList.remove("show");
@@ -278,7 +278,7 @@
       resetBtn.style.display = "none";
       toothpasteVideo.style.display = "none";
       toothpasteImg.style.display = "block";
-      toothpasteImg.src = "intro.jpg";
+      toothpasteImg.src = firstRound ? "intro.jpg" : "toothpaste.png";
       message.textContent = "";
       clickCount = 0;
       explosionChance = 0.05;
