@@ -189,12 +189,20 @@
     }
 
     function updateScore() {
-      scoreContainer.textContent = `Проказы с пастой: ${score}`;
-      if (!firstRound && score % 5 === 0 && score !== 0) {
-        record = Math.max(record, score);
-        recordContainer.textContent = `Рекорд: ${record}`;
-        if (!confettiShown) { launchConfetti(); confettiShown = true; }
+  scoreContainer.textContent = `Проказы с пастой: ${score}`;
+
+  if (!firstRound) {
+    // если текущий счет больше рекорда
+    if (score > record) {
+      record = score;
+      recordContainer.textContent = `Рекорд: ${record}`;
+
+      // если рекорд побит впервые в этом раунде
+      if (!confettiShown) {
+        launchConfetti();
+        confettiShown = true; // больше не показывать конфетти в этом раунде
       }
+    }
     }
 
     function launchConfetti() {
