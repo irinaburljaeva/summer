@@ -88,10 +88,12 @@
       Рекорд: 0
       <div id="achievements"></div>
     </div>
+
     <img id="toothpaste-img" src="intro.jpg" alt="Intro"/>
     <video id="toothpaste-video" muted playsinline style="display:none;">
       <source src="toothpaste.mp4" type="video/mp4">
     </video>
+
     <div id="message"></div>
     <button id="reset-btn">Стереть пасту</button>
   </div>
@@ -126,7 +128,8 @@
         secretActive    = false,
         secretClicks    = 0,
         secretStart     = 0,
-        secretChance    = 0.05;
+        secretChance    = 0.05,
+        secretSuccess   = false; // флаг успешного челленджа
 
     const texts = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
@@ -135,84 +138,92 @@
       "Кажется кто-то измазал пастой тренера Машу...и да, это были Вы 😏",
       "Вас хотели измазать пастой, но вы оказались быстрее!",
       "Тренеру Тане не повезло! Вы измазали ее пастой 😜",
-      "Вы измазали пастой другого шагателя!",
-      "Вы измазали пастью зеркало в ванной"
+      "Вы измазали пастей другого шагателя!",
+      "Вы измазали пастой зеркало в ванной"
     ];
     const emojis = ["😂","🤣","😜","🙈","🙃","😏"];
     const bonuses = [
       { chance:0.15, text:"Бонус! +2 проказы 🎁", add:2 },
       { chance:0.07, text:"Супер-клик! Следующий +3 🔥", superClick:true },
-      { chance:0.05, /*секретный защитный слой без текста*/ reduce:0.10 }
-    ];
-    const achievements = [
-      { id:'light',  emoji:'🪥', name:'Лёгкая пакость',       cond:s=>s>=5,               unlocked:false },
-      { id:'failday',emoji:'💥', name:'Неудачный день',       cond:()=>explosionCount>=5,  unlocked:false },
-      { id:'speed',  emoji:'⚡', name:'Молниеносная пакость', cond:()=>secretActive===false && secretClicks===0 && roundCount>1 && performance.now()-secretStart<=3000 && secretClicks===5, unlocked:false },
-      { id:'main',   emoji:'🏅', name:'Главный проказник',     cond:s=>s>=10,              unlocked:false },
-      { id:'camp',   emoji:'👑', name:'Главный пакостник',     cond:s=>s>=20,              unlocked:false },
-      { id:'collector', emoji:'💎', name:'Коллекционер',      cond:()=>achievements.slice(0,5).every(a=>a.unlocked), unlocked:false }
+      // защитный слой без текста
+      { chance:0.05, reduce:0.10 }
     ];
 
-    function randomMessage(){
+    const achievements = [
+      { id:'light',   emoji:'🪥', name:'Лёгкая пакость',       cond: s=>s>=5,               unlocked:false },
+      { id:'failday', emoji:'💥', name:'Неудачный день',       cond: ()=>explosionCount>=5,  unlocked:false },
+      { id:'speed',   emoji:'⚡', name:'Молниеносная пакость', cond: ()=>secretSuccess,      unlocked:false },
+      { id:'main',    emoji:'🏅', name:'Главный проказник',     cond: s=>s>=10,              unlocked:false },
+      { id:'camp',    emoji:'👑', name:'Главный пакостник',     cond: s=>s>=20,              unlocked:false },
+      { id:'collector',emoji:'💎',name:'Коллекционер',          cond: ()=>achievements.slice(0,5).every(a=>a.unlocked), unlocked:false }
+    ];
+
+    function randomMessage() {
       let m;
-      do{
+      do {
         m = Math.random()<0.3
           ? emojis[Math.floor(Math.random()*emojis.length)]
           : texts[Math.floor(Math.random()*texts.length)];
-      }while(m===lastMsg);
-      lastMsg=m; return m;
+      } while (m===lastMsg);
+      lastMsg = m;
+      return m;
     }
 
-    function showMessage(t){
-      msg.textContent=t; msg.classList.remove("show");
-      void msg.offsetWidth; msg.classList.add("show");
+    function showMessage(t) {
+      msg.textContent = t;
+      msg.classList.remove("show");
+      void msg.offsetWidth;
+      msg.classList.add("show");
     }
 
-    function showAchievement(a){
-      popup.textContent=`${a.emoji} ${a.name}`; popup.classList.add("show");
-      achBox.innerHTML+=`<span>${a.emoji}</span>`;
+    function showAchievement(a) {
+      popup.textContent = `${a.emoji} ${a.name}`;
+      popup.classList.add("show");
+      achBox.innerHTML += `<span>${a.emoji}</span>`;
       setTimeout(()=>popup.classList.remove("show"),2000);
     }
 
-    function checkAchievements(){
-      achievements.forEach(a=>{
-        if(!a.unlocked && a.cond(score)){
-          a.unlocked=true; showAchievement(a);
+    function checkAchievements() {
+      achievements.forEach(a => {
+        if (!a.unlocked && a.cond(score)) {
+          a.unlocked = true;
+          showAchievement(a);
         }
       });
     }
 
-    function updateScore(){
-      scoreBox.textContent=`Проказы с пастой: ${score}`;
-      if(!firstRound && score>record){
-        record=score;
-        recBox.firstChild.nodeValue=`Рекорд: ${record}`;
+    function updateScore() {
+      scoreBox.textContent = `Проказы с пастой: ${score}`;
+      if (!firstRound && score>record) {
+        record = score;
+        recBox.firstChild.nodeValue = `Рекорд: ${record}`;
       }
       checkAchievements();
     }
 
-    function startSecret(){
-      secretActive=true;
-      secretClicks=0;
-      secretStart=performance.now();
-      showMessage("🎯 Секретный уровень! 5 кликов за 3 с!");
+    function startSecret() {
+      secretActive = true;
+      secretSuccess = false;
+      secretClicks = 0;
+      secretStart = performance.now();
+      showMessage("🎯 Секретный уровень: 5 кликов за 3 с!");
     }
 
-    function handleBonus(){
-      if(score<5||firstRound) return 0;
-      let extra=0;
+    function handleBonus() {
+      if (score<5 || firstRound) return 0;
+      let extra = 0;
       bonuses.forEach(b=>{
-        if(Math.random()<b.chance){
-          if(b.text){
-            bonusBox.textContent=b.text;
-            bonusBox.style.display="block";
+        if (Math.random()<b.chance) {
+          if (b.text) {
+            bonusBox.textContent = b.text;
+            bonusBox.style.display = "block";
             setTimeout(()=>bonusBox.style.display="none",1500);
           }
-          if(b.superClick) superClick=true;
-          if(b.add) extra+=b.add;
-          if(b.reduce){
-            explosionChance=Math.max(0.05,explosionChance-b.reduce);
-            protectedClicks=5;
+          if (b.superClick) superClick = true;
+          if (b.add) extra += b.add;
+          if (b.reduce) {
+            explosionChance = Math.max(0.05, explosionChance - b.reduce);
+            protectedClicks = 5;
           }
         }
       });
@@ -223,85 +234,85 @@
       img.classList.add("shake");
       setTimeout(()=>img.classList.remove("shake"),300);
 
-      if(firstRound&&img.src.includes("intro.jpg")){
+      // переключение с intro
+      if (firstRound && img.src.includes("intro.jpg")) {
         img.src="toothpaste.png";
         scoreBox.style.display="block";
         recBox.style.display="none";
         return;
       }
 
-      // шанс открыть секретный уровень
-      if(!secretActive && roundCount>=5 && Math.random()<secretChance){
+      clickCount++;
+
+      // шанс секрета после 5 раундов
+      if (!secretActive && roundCount>=5 && Math.random()<secretChance) {
         startSecret();
-        secretChance=Math.min(0.5,secretChance+0.05);
+        secretChance = Math.min(0.5, secretChance + 0.05);
         return;
       }
 
-      const now=performance.now();
-
-      // если секрет активен
-      if(secretActive){
-        if(now-secretStart<=3000){
+      if (secretActive) {
+        // мини-челлендж
+        const now = performance.now();
+        if (now - secretStart <= 3000) {
           secretClicks++;
           showMessage(`Ещё ${5-secretClicks} клик`+(5-secretClicks>1?'ов':''));
-          if(secretClicks===5){
-            secretActive=false;
-            score+=5; updateScore();
+          if (secretClicks === 5) {
+            secretActive = false;
+            secretSuccess = true;       // флаг успешного челленджа
+            score += 5;
+            updateScore();
             showMessage("Успех! +5 проказ 💥");
-            // отмечаем ачивку
-            achievements[2].unlocked=false;
-            checkAchievements();
           }
-        }else{
-          secretActive=false;
+        } else {
+          secretActive = false;
           showMessage("Время вышло!");
         }
         return;
       }
 
-      clickCount++;
-
-      // взрыв?
-      if(protectedClicks>0){
+      // проверка взрыва
+      if (protectedClicks>0) {
         protectedClicks--;
-      } else if(clickCount>=3&&Math.random()<explosionChance){
+      }
+      else if (clickCount>=3 && Math.random()<explosionChance) {
         explosionCount++;
         img.style.display="none";
         vid.style.display="block";
         vid.currentTime=0; vid.play();
         scoreBox.style.display="none";
-        vid.onended=()=>{
+        vid.onended = ()=>{
           overlay.classList.add("show");
-          finalText.textContent=
+          finalText.textContent =
             "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈";
           setTimeout(()=>{
             finalText.style.display="block";
             resetBtn.style.display="block";
-            recBox.style.display=firstRound?"none":"block";
+            recBox.style.display = firstRound?"none":"block";
           },500);
         };
         return;
       }
 
       // обычный клик
-      let pts=superClick?3:1;
+      let pts = superClick?3:1;
       superClick=false;
-      pts+=handleBonus();
-      score+=pts;
+      pts += handleBonus();
+      score += pts;
       updateScore();
       showMessage(randomMessage());
-      explosionChance=Math.min(0.5,explosionChance+0.05);
+      explosionChance = Math.min(0.5, explosionChance + 0.05);
     });
 
     resetBtn.addEventListener("click",()=>{
-      if(firstRound){
-        record=score;
-        recBox.firstChild.nodeValue=`Рекорд: ${record}`;
+      if (firstRound) {
+        record = score;
+        recBox.firstChild.nodeValue = `Рекорд: ${record}`;
       }
-      firstRound=false;
+      firstRound = false;
       roundCount++;
-      // увеличиваем шанс секретного уровня после 5 раундов
-      secretChance= roundCount>=5 ? 0.2 : 0.05;
+      // увеличиваем шанс секрета
+      secretChance = roundCount>=5 ? 0.2 : 0.05;
 
       overlay.classList.remove("show");
       finalText.style.display="none";
@@ -309,6 +320,7 @@
       vid.style.display="none";
       img.style.display="block";
       img.src="toothpaste.png";
+
       clickCount=0; explosionCount=0;
       explosionChance=0.05; protectedClicks=0;
       score=0; scoreBox.textContent="Проказы с пастой: 0";
