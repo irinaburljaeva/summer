@@ -43,6 +43,8 @@
       transition: transform 0.2s;
     }
 
+    #toothpaste:focus { outline: none; }
+
     .shake { animation: shake 0.3s; }
 
     @keyframes shake {
@@ -64,6 +66,8 @@
       text-align: center;
       opacity: 0;
       transition: opacity 0.3s;
+      z-index: 20;
+      position: relative;
     }
     #message.show { opacity: 1; }
 
@@ -107,7 +111,7 @@
       border-radius: 8px;
       cursor: pointer;
       display: none;
-      z-index: 10;
+      z-index: 20;
     }
   </style>
 </head>
@@ -149,15 +153,13 @@
     let prankCount = 0;
     let record = 0;
     let firstExplosion = false;
-    let minClicksBeforeExplosion = 3;
+    let minClicksBeforeExplosion = Math.floor(Math.random() * 2) + 3; // 3 или 4
     let explosionChance = 0.2;
     let lastMessage = "";
-    let confettiUsed = false;
 
     function showMessage(text) {
       message.textContent = text;
       message.classList.add("show");
-      setTimeout(() => message.classList.remove("show"), 2000);
     }
 
     function showEmoji() {
@@ -186,15 +188,21 @@
       video.currentTime = 0;
       video.play();
       message.textContent = "";
-      setTimeout(() => {
+      pinkOverlay.style.opacity = 0;
+
+      video.onended = () => {
         pinkOverlay.style.transition = "opacity 1s";
         pinkOverlay.style.opacity = 1;
-      }, (video.duration * 800) || 2400);
-      video.onended = () => {
-        message.textContent =
-          "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках, и вы измазались сами 🙈";
-        resetBtn.style.display = "block";
+
+        setTimeout(() => {
+          message.textContent =
+            "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках, и вы измазались сами 🙈";
+          message.classList.add("show");
+          resetBtn.style.display = "block";
+        }, 500);
       };
+
+      explosionChance = 0.2; // сброс шанса после взрыва
     }
 
     function resetGame() {
@@ -203,8 +211,6 @@
       toothpasteImg.style.display = "block";
       toothpasteImg.src = "toothpaste.png";
       resetBtn.style.display = "none";
-      explosionChance = 0.2;
-      confettiUsed = false;
     }
 
     toothpasteImg.addEventListener("click", () => {
@@ -215,23 +221,25 @@
         toothpasteImg.src = "toothpaste.png";
         counterEl.classList.remove("hidden");
         recordEl.classList.remove("hidden");
-        prankCount = 0;
-        clickCount = 0;
         return;
       }
 
       clickCount++;
+
+      // Логика первого взрыва
       if (!firstExplosion && clickCount >= minClicksBeforeExplosion) {
         firstExplosion = true;
         triggerExplosion();
         return;
       }
 
+      // Случайный взрыв
       if (Math.random() < explosionChance) {
         triggerExplosion();
       } else {
         prankCount++;
         counterEl.textContent = `Проказы с пастой: ${prankCount}`;
+
         if (prankCount > record) {
           record = prankCount;
           recordEl.textContent = `Рекорд: ${record}`;
