@@ -63,7 +63,7 @@
       pointer-events: none;
     }
 
-    /* Изображение и видео */
+    /* Картинка и видео */
     #toothpaste-img,
     #toothpaste-video {
       width: 200px;
@@ -169,6 +169,27 @@
       display: none;
       z-index: 12;
     }
+
+    /* Бонусное окно */
+    #bonus {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      font-weight: bold;
+      background: #ffeaa7;
+      padding: 10px 20px;
+      border-radius: 12px;
+      display: none;
+      animation: fadeInBonus 0.5s forwards;
+      z-index: 12;
+    }
+    @keyframes fadeInBonus {
+      from { opacity: 0; transform: translate(-50%, -30px) scale(0.8); }
+      to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
   </style>
 </head>
 <body>
@@ -187,6 +208,7 @@
 
   <div id="pink-overlay"></div>
   <div id="final-text"></div>
+  <div id="bonus"></div>
   <div id="achieve-popup"></div>
 
   <script>
@@ -199,7 +221,8 @@
           overlay   = document.getElementById("pink-overlay"),
           finalText = document.getElementById("final-text"),
           resetBtn  = document.getElementById("reset-btn"),
-          popup     = document.getElementById("achieve-popup");
+          popup     = document.getElementById("achieve-popup"),
+          bonusBox  = document.getElementById("bonus");
 
     let score           = 0,
         record          = 0,
@@ -207,7 +230,8 @@
         clicks          = 0,
         explosionCount  = 0,
         explosionChance = 0.05,
-        lastMsg         = "";
+        lastMsg         = "",
+        superClick      = false;
 
     const texts = [
       "Пока никто не видел вы намазали пастой тренера Настю 😉",
@@ -232,10 +256,15 @@
     ];
 
     const achievements = [
-      { id:'light',   name:'Лёгкая пакость',   emoji:'🪥', cond:s=>s>=5,          unlocked:false, note:'за 5 проказ' },
-      { id:'main',    name:'Главный проказник', emoji:'🏅', cond:s=>s>=10,         unlocked:false, note:'за 10 проказ' },
-      { id:'camp',    name:'Главный пакостник', emoji:'👑', cond:s=>s>=20,         unlocked:false, note:'за 20 проказ' },
+      { id:'light',   name:'Лёгкая пакость',   emoji:'🪥', cond:s=>s>=5,           unlocked:false, note:'за 5 проказ' },
+      { id:'main',    name:'Главный проказник', emoji:'🏅', cond:s=>s>=10,          unlocked:false, note:'за 10 проказ' },
+      { id:'camp',    name:'Главный пакостник', emoji:'👑', cond:s=>s>=20,          unlocked:false, note:'за 20 проказ' },
       { id:'failday', name:'Неудачный день',    emoji:'💥', cond:()=>explosionCount>=5, unlocked:false, note:'за 5 взрывов' }
+    ];
+
+    const bonuses = [
+      { chance: 0.15, text: "Бонус! +2 проказы 🎁", add: 2 },
+      { chance: 0.1,  text: "Супер-клик! Следующий +3 🔥", add: 0, superClick: true }
     ];
 
     function randomMsg() {
@@ -282,13 +311,14 @@
       setTimeout(()=>img.classList.remove("shake"),300);
 
       if(firstRound && img.src.includes("intro.jpg")) {
-        img.src="toothpaste.png";
-        scoreBox.style.display="block";
+        img.src = "toothpaste.png";
+        scoreBox.style.display = "block";
         return;
       }
 
       clicks++;
-      if(clicks>=3 && Math.random()<explosionChance) {
+      if(clicks >= 3 && Math.random() < explosionChance) {
+        // взрыв
         explosionCount++;
         img.style.display = "none";
         vid.style.display = "block";
@@ -306,11 +336,28 @@
             recBox.style.display = "block";
           },500);
         };
+
       } else {
-        score++;
+        // начисляем очки + бонусы только после первого круга
+        let pts = superClick ? 3 : 1;
+        superClick = false;
+
+        if(!firstRound) {
+          bonuses.forEach(b=>{
+            if(Math.random()<b.chance) {
+              bonusBox.textContent = b.text;
+              bonusBox.style.display = "block";
+              setTimeout(()=>bonusBox.style.display = "none",1500);
+              if(b.superClick) superClick = true;
+              else pts += b.add;
+            }
+          });
+        }
+
+        score += pts;
         updateScore();
         showMessage(randomMsg());
-        explosionChance = Math.min(0.5, explosionChance+0.05);
+        explosionChance = Math.min(0.5, explosionChance + 0.05);
       }
     });
 
@@ -320,20 +367,20 @@
         recBox.firstChild.textContent = `Рекорд: ${record}`;
       }
       overlay.classList.remove("show");
-      finalText.style.display="none";
-      resetBtn.style.display="none";
-      vid.style.display="none";
-      img.style.display="block";
-      img.src="toothpaste.png";
-      msg.textContent="";
-      clicks=0;
-      explosionChance=0.05;
-      score=0;
-      scoreBox.textContent="Проказы с пастой: 0";
-      scoreBox.style.display="block";
-      firstRound=false;
+      finalText.style.display = "none";
+      resetBtn.style.display = "none";
+      bonusBox.style.display = "none";
+      vid.style.display = "none";
+      img.style.display = "block";
+      img.src = "toothpaste.png";
+      msg.textContent = "";
+      clicks = 0;
+      explosionChance = 0.05;
+      score = 0;
+      scoreBox.textContent = "Проказы с пастой: 0";
+      scoreBox.style.display = "block";
+      firstRound = false;
     });
   </script>
 </body>
 </html>
-```0
