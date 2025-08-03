@@ -16,6 +16,7 @@
       flex-direction: column;
       font-family: Arial, sans-serif;
       position: relative;
+      overflow: hidden;
     }
     #counter {
       position: absolute;
@@ -28,21 +29,19 @@
       font-weight: bold;
       font-size: 16px;
       display: none;
+      z-index: 10;
     }
     #image-container {
       position: relative;
+      z-index: 5;
     }
     img, video {
       width: 280px;
       user-select: none;
       -webkit-user-drag: none;
     }
-    img:focus {
-      outline: none;
-    }
-    .shake {
-      animation: shake 0.3s;
-    }
+    img:focus { outline: none; }
+    .shake { animation: shake 0.3s; }
     @keyframes shake {
       0% { transform: translate(0, 0) }
       25% { transform: translate(-5px, 0) }
@@ -58,13 +57,15 @@
       height: 100%;
       background: #ffd6e8;
       opacity: 0;
-      pointer-events: none;
+      z-index: 1; /* ниже текста */
     }
     #message, #emoji {
       margin-top: 20px;
       font-size: 20px;
       text-align: center;
       max-width: 300px;
+      z-index: 10;
+      position: relative;
     }
     #emoji {
       font-size: 40px;
@@ -85,6 +86,8 @@
       border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
+      z-index: 20;
+      position: relative;
     }
     #final-text {
       display: none;
@@ -92,6 +95,8 @@
       font-size: 22px;
       font-weight: bold;
       text-align: center;
+      z-index: 20;
+      position: relative;
     }
   </style>
 </head>
@@ -135,7 +140,7 @@
     const emojis = ["😂", "😜", "🙈", "😅", "🤭"];
 
     function getRandomExplosion() {
-      return Math.floor(Math.random() * 3) + 2; // от 2 до 4 кликов
+      return Math.floor(Math.random() * 3) + 2;
     }
 
     function getRandomMessage() {
@@ -154,6 +159,8 @@
       if (toothpaste.src.includes("intro.jpg")) {
         toothpaste.src = "toothpaste.png";
         counter.style.display = "block";
+        prankCount++;
+        counter.textContent = "Проказы с пастой: " + prankCount;
         return;
       }
 
@@ -201,8 +208,10 @@
         document.getElementById("image-container").removeChild(video);
         toothpaste.style.display = "inline-block";
         toothpaste.src = "toothpaste.png";
+
         finalText.style.display = "block";
         resetBtn.style.display = "block";
+
         prankCount = 0;
         counter.textContent = "Проказы с пастой: " + prankCount;
         clickCount = 0;
