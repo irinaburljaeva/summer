@@ -23,6 +23,7 @@
       cursor: pointer;
       user-select: none;
       outline: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .shake {
       animation: shake 0.3s;
@@ -38,6 +39,8 @@
       margin-top: 20px;
       font-size: 20px;
       font-weight: 500;
+      position: relative;
+      z-index: 10;
     }
     #counter {
       position: absolute;
@@ -50,10 +53,12 @@
       padding: 8px 14px;
       border-radius: 8px;
       display: none;
+      z-index: 10;
     }
     #video {
       width: 220px;
       display: none;
+      outline: none;
     }
     #overlay {
       position: fixed;
@@ -77,6 +82,7 @@
       border-radius: 6px;
       cursor: pointer;
       z-index: 10;
+      position: relative;
     }
     .emoji {
       position: absolute;
@@ -84,6 +90,7 @@
       font-size: 40px;
       opacity: 0;
       animation: floatUp 1.5s ease-out forwards;
+      z-index: 10;
     }
     @keyframes floatUp {
       0% { transform: translateY(0); opacity: 1; }
@@ -202,8 +209,6 @@
         setTimeout(() => {
           message.textContent = "Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках, и в итоге вы измазались сами 🙈";
           resetBtn.style.display = "inline-block";
-          resetBtn.style.position = "relative";
-          resetBtn.style.zIndex = 10;
         }, 1500);
 
         score = 0;
