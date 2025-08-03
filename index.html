@@ -52,4 +52,199 @@
       font-size: 40px;
       margin-top: 10px;
       opacity: 0;
-      transform:
+      transform: scale(0.5) rotate(-20deg);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    #emoji.show {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+    .shake {
+      animation: shakeAnim 0.4s;
+    }
+    @keyframes shakeAnim {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+    }
+    #resetContainer {
+      display: none;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
+    #resetBtn {
+      background: #cf2c02;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #pinkOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #f7d6d6;
+      z-index: 500;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="score-container">
+    <div id="scoreBox" class="score-box">Проказы с пастой: 0</div>
+    <div id="recordBox" class="score-box" style="display:none;">Рекорд: 0</div>
+  </div>
+
+  <img id="toothpasteImage" src="intro.jpg" alt="Тюбик пасты" />
+
+  <video id="toothpasteVideo" style="display:none;" width="200" muted></video>
+
+  <div id="message"></div>
+  <div id="emoji"></div>
+
+  <div id="pinkOverlay"></div>
+
+  <div id="resetContainer">
+    <p id="finalText">Ой! Кто-то переусердствовал. Тюбик с пастой взорвался прямо у вас в руках и в итоге вы измазались сами 🙈</p>
+    <button id="resetBtn">Стереть пасту</button>
+  </div>
+
+  <script>
+    const toothpasteImage = document.getElementById("toothpasteImage");
+    const toothpasteVideo = document.getElementById("toothpasteVideo");
+    const messageEl = document.getElementById("message");
+    const emojiEl = document.getElementById("emoji");
+    const scoreBox = document.getElementById("scoreBox");
+    const recordBox = document.getElementById("recordBox");
+    const resetContainer = document.getElementById("resetContainer");
+    const resetBtn = document.getElementById("resetBtn");
+    const pinkOverlay = document.getElementById("pinkOverlay");
+
+    const messages = [
+      "Пока никто не видел вы намазали пастой тренера Настю 😉",
+      "Шалость удалась! Вы измазали пастой вашего соседа 😁",
+      "Вы измазали пастой куратора Сашу 😅",
+      "Кажется кто-то измазал пастой тренера Машу...и да, это были Вы 😏",
+      "Вас хотели измазать пастой, но вы оказались быстрее!",
+      "Тренеру Тане сегодня не повезло! Пока никто не видел, вы измазали её пастой!",
+      "Вы измазали пастой другого шагателя!",
+      "Вы измазали пастой зеркало в ванной!"
+    ];
+    const emojis = ["😂","😜","🤣","🙈","🤭","😁","😉"];
+
+    let score = 0;
+    let bestScore = 0;
+    let firstRound = true;
+    let confettiShown = false;
+    let clickCount = 0;
+    let explosionChance = 0;
+    let lastMessage = "";
+
+    function getRandomMessage() {
+      let newMsg;
+      do { newMsg = messages[Math.floor(Math.random() * messages.length)]; }
+      while (newMsg === lastMessage);
+      lastMessage = newMsg;
+      return newMsg;
+    }
+
+    function updateScore() {
+      scoreBox.textContent = `Проказы с пастой: ${score}`;
+    }
+
+    function triggerExplosion() {
+      toothpasteVideo.src = "toothpaste.mp4";
+      toothpasteImage.style.display = "none";
+      toothpasteVideo.style.display = "block";
+      toothpasteVideo.play();
+
+      setTimeout(() => {
+        pinkOverlay.style.display = "block";
+        setTimeout(() => (pinkOverlay.style.opacity = 1), 50);
+      }, 700);
+
+      toothpasteVideo.onended = () => {
+        resetContainer.style.display = "block";
+      };
+    }
+
+    function showMessageOrEmoji() {
+      if (Math.random() < 0.3) {
+        emojiEl.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        emojiEl.classList.add("show");
+        messageEl.textContent = "";
+        setTimeout(() => emojiEl.classList.remove("show"), 1200);
+      } else {
+        messageEl.textContent = getRandomMessage();
+        messageEl.classList.add("show");
+        emojiEl.textContent = "";
+        setTimeout(() => messageEl.classList.remove("show"), 1500);
+      }
+    }
+
+    toothpasteImage.addEventListener("click", () => {
+      toothpasteImage.classList.add("shake");
+      setTimeout(() => toothpasteImage.classList.remove("shake"), 400);
+
+      if (toothpasteImage.src.includes("intro.jpg")) {
+        toothpasteImage.src = "toothpaste.png";
+        recordBox.style.display = "block";
+        return;
+      }
+
+      clickCount++;
+      if (firstRound) {
+        if (clickCount >= 3 && Math.random() < 0.5) {
+          triggerExplosion();
+          firstRound = false;
+          return;
+        }
+      } else {
+        explosionChance = Math.min(explosionChance + 0.1, 0.5);
+        if (Math.random() < explosionChance) {
+          triggerExplosion();
+          explosionChance = 0;
+          if (score > bestScore) {
+            bestScore = score;
+            recordBox.textContent = `Рекорд: ${bestScore}`;
+          }
+          return;
+        }
+      }
+
+      score++;
+      updateScore();
+      showMessageOrEmoji();
+
+      if (score > bestScore) {
+        bestScore = score;
+        recordBox.textContent = `Рекорд: ${bestScore}`;
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      score = 0;
+      updateScore();
+      toothpasteImage.src = "toothpaste.png";
+      toothpasteImage.style.display = "block";
+      toothpasteVideo.style.display = "none";
+      pinkOverlay.style.opacity = 0;
+      setTimeout(() => (pinkOverlay.style.display = "none"), 500);
+      resetContainer.style.display = "none";
+    });
+  </script>
+</body>
+</html>
